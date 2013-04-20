@@ -1,19 +1,23 @@
 package com.msse.atmegacontrollerapp;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import android.app.Activity;
 import android.content.Context;
+import android.hardware.Camera;
 import android.hardware.usb.UsbManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.hoho.android.usbserial.driver.UsbSerialDriver;
 import com.hoho.android.usbserial.driver.UsbSerialProber;
@@ -67,10 +71,14 @@ public class MainActivity extends Activity {
         }
     };
 
+	private Camera camera;
+
     @Override
     protected void onPause() {
         super.onPause();
         stopIoManager();
+        camera.release();
+        camera = null;
         if (mSerialDevice != null) {
             try {
                 mSerialDevice.close();
@@ -84,6 +92,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
+        camera = Camera.open();
         mSerialDevice = UsbSerialProber.acquire(mUsbManager);
         Log.d(TAG, "Resumed, mSerialDevice=" + mSerialDevice);
         if (mSerialDevice == null) {
@@ -154,12 +163,39 @@ public class MainActivity extends Activity {
         ImageButton stopBtn = (ImageButton) findViewById(R.id.stop_btn);
         ImageButton rightBtn = (ImageButton) findViewById(R.id.right_btn);
         ImageButton backwardBtn = (ImageButton) findViewById(R.id.backward_btn);
+        Button pictureBtn = (Button) findViewById(R.id.photo_btn);
 
         forwardBtn.setOnClickListener(controlClickListener);
         leftBtn.setOnClickListener(controlClickListener);
         stopBtn.setOnClickListener(controlClickListener);
         rightBtn.setOnClickListener(controlClickListener);
         backwardBtn.setOnClickListener(controlClickListener);
+        pictureBtn.setOnClickListener(new OnClickListener(){
+
+			@Override
+			public void onClick(View v) {
+camera.takePicture(null, null, new Camera.PictureCallback() {
+					
+					@Override
+					public void onPictureTaken(byte[] data, Camera camera) {
+						Toast.makeText(getApplicationContext(), "Took Picture, size " + data.length + " bytes", Toast.LENGTH_LONG).show();
+						String FILENAME = "image_file";
+
+						try{
+							FileOutputStream fos = openFileOutput(FILENAME, Context.MODE_PRIVATE);
+							fos.write(data);
+							fos.close();
+//							Bitmap myBitmap = BitmapFactory.decodeStream(openFileInput(FILENAME));
+//							ImageView myImage = (ImageView) findViewById(R.id.imageview);
+//							myImage.setImageBitmap(myBitmap);
+						} catch(Exception e){
+							Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+						}
+					}
+				});
+			}
+        	
+        });
 
     }
 
