@@ -1,0 +1,69 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <ImageButton
+            android:id="@+id/forward_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:src="@drawable/forward" />
+
+        <ImageButton
+            android:id="@+id/stop_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/forward_btn"
+            android:layout_centerHorizontal="true"
+            android:src="@drawable/stop" />
+
+        <ImageButton
+            android:id="@+id/left_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/forward_btn"
+            android:layout_toLeftOf="@+id/stop_btn"
+            android:src="@drawable/left" />
+
+        <ImageButton
+            android:id="@+id/right_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/forward_btn"
+            android:layout_toRightOf="@+id/stop_btn"
+            android:src="@drawable/right" />
+
+        <ImageButton
+            android:id="@+id/backward_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/stop_btn"
+            android:layout_centerHorizontal="true"
+            android:src="@drawable/backward" />
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/logTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:typeface="monospace" />
+
+    <ScrollView
+        android:id="@+id/logScroller"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent" >
+
+        <TextView
+            android:id="@+id/logText"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:typeface="monospace" />
+    </ScrollView>
+
+</LinearLayout>
