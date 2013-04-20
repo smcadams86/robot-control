@@ -7,12 +7,12 @@ int main() {
   // Used to print to serial comm window
   char tempBuffer[32];
   int length = 0;
-	
+  
   // Initialization here.
   encoders_init(IO_D2, IO_D3, IO_D4, IO_D5);
-  lcd_init_printf();	// required if we want to use printf() for LCD printing
-  init_menu();	// this is initialization of serial comm through USB
-  clear();	// clear the LCD
+  lcd_init_printf();  // required if we want to use printf() for LCD printing
+  init_menu();  // this is initialization of serial comm through USB
+  clear();  // clear the LCD
 
   current_command = STOP;
 
@@ -24,22 +24,22 @@ int main() {
       case LEFT:
         set_motors(0, -WHEEL_SPEED);
         set_motors(1, WHEEL_SPEED);
-	break;
+        break;
       case RIGHT:
-	set_motors(0, WHEEL_SPEED);
+        set_motors(0, WHEEL_SPEED);
         set_motors(1, -WHEEL_SPEED);
-	break;
+        break;
       case FORWARD:
-	set_motors(0, WHEEL_SPEED);
+        set_motors(0, WHEEL_SPEED);
         set_motors(1, WHEEL_SPEED);
-	break;
+        break;
       case BACKWARD:
-	set_motors(0, -WHEEL_SPEED);
+        set_motors(0, -WHEEL_SPEED);
         set_motors(1, -WHEEL_SPEED);
-	break;
+        break;
       case STOP:
       default:
-	set_motors(0, 0);
+        set_motors(0, 0);
         set_motors(1, 0);
         break;
     }
