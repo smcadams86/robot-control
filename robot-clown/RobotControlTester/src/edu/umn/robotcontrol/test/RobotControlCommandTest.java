@@ -34,6 +34,7 @@ public class RobotControlCommandTest {
     String baseurl =  props.getProperty("baseurl");
     HttpPost httpPost = new HttpPost(
         baseurl + "/rest/control/command");
+    System.out.println("Url = " + httpPost.getURI());
     RobotCommand rc = new RobotCommand();
     rc.setComponent(1);
     rc.setValue(45);
@@ -44,7 +45,7 @@ public class RobotControlCommandTest {
     System.out.println(json);
 
     httpPost.setEntity(new StringEntity(json));
-    httpPost.setHeader("Accept", "text/html");
+    httpPost.setHeader("Accept", "application/json");
     httpPost.setHeader("Content-Type", "application/json");
     HttpResponse response = client.execute(httpPost);
     HttpEntity entity = response.getEntity();
