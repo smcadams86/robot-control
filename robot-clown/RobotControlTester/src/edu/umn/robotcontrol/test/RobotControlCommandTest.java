@@ -33,7 +33,7 @@ public class RobotControlCommandTest {
     fis.close();
     String baseurl =  props.getProperty("baseurl");
     HttpPost httpPost = new HttpPost(
-        baseurl + "/control/control/command");
+        baseurl + "/rest/control/command");
     RobotCommand rc = new RobotCommand();
     rc.setComponent(1);
     rc.setValue(45);

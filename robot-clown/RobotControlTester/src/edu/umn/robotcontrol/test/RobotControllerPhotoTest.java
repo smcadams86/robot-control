@@ -40,7 +40,7 @@ public class RobotControllerPhotoTest {
 			File photoFile = new File(samplePhotoURL.toURI());
 			HttpClient client = new DefaultHttpClient();
 			HttpPost httpPost = new HttpPost(
-					TestProperties.baseurl + "/control/control/photo");
+					TestProperties.baseurl + "/rest/control/photo");
 			
 			// Write the time on it so that we can see that the photo changed.
 			BufferedImage img = ImageIO.read(photoFile);
