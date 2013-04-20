@@ -15,7 +15,7 @@ public class RobotControlTester {
   public static void main(String[] args) throws MalformedURLException,
       IOException {
     URLConnection con = new URL(
-        "http://localhost:8080/RobotControlServer/control/control/hello")
+        "http://localhost:8080/RobotControlServer/rest/control/hello")
         .openConnection();
     BufferedReader in = new BufferedReader(new InputStreamReader(
         con.getInputStream()));
@@ -27,7 +27,7 @@ public class RobotControlTester {
 
     HttpClient client = new DefaultHttpClient();
     HttpPost httpPost = new HttpPost(
-        "http://localhost:8080/RobotControlServer/control/control/photo");
+        "http://localhost:8080/RobotControlServer/rest/control/photo");
     byte[] bytes = { 0x01b };
     httpPost.setEntity(new ByteArrayEntity(bytes));
     HttpResponse response = client.execute(httpPost);

@@ -50,7 +50,7 @@ public class RobotControlResource {
 
   @POST
   @Path("/photo")
-  @Produces(MediaType.TEXT_HTML)
+  @Produces(MediaType.APPLICATION_JSON)
   @Consumes(MediaType.APPLICATION_OCTET_STREAM)
   public String handlePhoto(byte[] data) throws IOException {
     System.out.println("photo was posted, " + data.length + " bytes");
@@ -60,18 +60,18 @@ public class RobotControlResource {
     fos.close();
     System.out.println("Wrote bytes to " + tmp);
     ImageHolder.getInstance().setCurrentImageFile(tmp);
-    return "Photo posted";
+    return " {msg:'success'}";
   }
 
   @POST
   @Path("/command")
-  @Produces(MediaType.TEXT_HTML)
+  @Produces(MediaType.APPLICATION_JSON)
   @Consumes(MediaType.APPLICATION_JSON)
   public String handleCommand(String command) {
     Gson gson = new Gson();
     RobotCommand rc = gson.fromJson(command, RobotCommand.class);
     CommandHolder.getInstance().pushCommand(rc);
-    return "Command Posted " + rc;
+    return "{msg:'success'}";
   }
   
   @GET
