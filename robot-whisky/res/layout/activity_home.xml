@@ -7,10 +7,36 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".Home" >
+    
+    <View android:id="@+id/strut"
+        android:layout_width="0dp"
+        android:layout_height="0dp" 
+        android:layout_centerHorizontal="true"/>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/hello_world" />
+    <ImageView
+        android:id="@+id/front"
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		android:layout_alignRight="@id/strut"
+        android:layout_alignParentLeft="true"
+		android:contentDescription="@string/front_image"
+		/>
+    
+    <ImageView
+        android:id="@+id/back"
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		android:layout_alignLeft="@id/strut"
+        android:layout_alignParentRight="true"
+		android:contentDescription="@string/back_image"
+		/>
+    
+    <Button
+    	android:layout_width="wrap_content"
+    	android:layout_height="wrap_content"
+    	android:text="Go To Map"
+    	android:onClick="goToMap"
+    	android:layout_below="@id/front"
+    	/>
 
 </RelativeLayout>

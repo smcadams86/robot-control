@@ -1,11 +1,14 @@
-package com.msse.robotwhisky;
+package edu.umn.robotcontrol.robotwhisky;
 
 import android.os.Bundle;
 import android.app.Activity;
+import android.content.Intent;
 import android.view.Menu;
+import android.view.View;
+
+import edu.umn.robotcontrol.robotwhisky.R;
 
 public class Home extends Activity {
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -18,5 +21,11 @@ public class Home extends Activity {
 		getMenuInflater().inflate(R.menu.home, menu);
 		return true;
 	}
-
+	
+	/** Called when the user clicks the goToMap button */
+	public void goToMap(View view) {
+	    // Do something in response to button
+		Intent intent = new Intent(this, Map.class);
+		startActivity(intent);
+	}
 }

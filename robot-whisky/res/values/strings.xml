@@ -4,5 +4,9 @@
     <string name="app_name">Robot-Whisky</string>
     <string name="action_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
+    <string name="title_activity_map">Map</string>
+    
+    <string name="front_image">Front Camera Image</string>
+    <string name="back_image">Back Camera Image</string>
 
 </resources>
