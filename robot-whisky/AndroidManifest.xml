@@ -46,6 +46,10 @@
             android:name="edu.umn.robotcontrol.robotwhisky.Map"
             android:label="@string/title_activity_map" >
         </activity>
+        <activity
+            android:name="edu.umn.robotcontrol.robotwhisky.SettingsActivity"
+            android:label="@string/title_activity_settings" >
+        </activity>
     </application>
 
 </manifest>

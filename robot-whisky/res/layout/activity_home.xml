@@ -30,13 +30,5 @@
         android:layout_alignParentRight="true"
 		android:contentDescription="@string/back_image"
 		/>
-    
-    <Button
-    	android:layout_width="wrap_content"
-    	android:layout_height="wrap_content"
-    	android:text="Go To Map"
-    	android:onClick="goToMap"
-    	android:layout_below="@id/front"
-    	/>
 
 </RelativeLayout>
