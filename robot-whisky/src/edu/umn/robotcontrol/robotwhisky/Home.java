@@ -7,11 +7,24 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
+import edu.umn.robotcontrol.domain.RobotCommand;
+
+import com.google.gson.Gson;
 
 public class Home extends Activity {
 	private Timer autoUpdate;
+	private Camera cameras[];
+	
+	private String buildURL() {
+		String dataSource = PreferenceManager.getDefaultSharedPreferences(this).getString("pref_data_source", "");
+		return "http://" + dataSource + "/control";
+	}
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -23,6 +36,19 @@ public class Home extends Activity {
 		PreferenceManager.setDefaultValues(this, R.xml.preferences, true);
 		
 		setContentView(R.layout.activity_home);
+		
+		
+		cameras = new Camera[2];
+		cameras[0] = new Camera(
+				(ImageView)findViewById(R.id.img_front),
+				(ProgressBar)findViewById(R.id.front_load),
+				buildURL() + "/photo" + "?width=%width%&height=%height%");
+		cameras[0].update();
+		cameras[1] = new Camera(
+				(ImageView)findViewById(R.id.img_back),
+				(ProgressBar)findViewById(R.id.back_load),
+				buildURL() + "/photo" + "?width=%width%&height=%height%");
+		cameras[1].update();
 	}
 
 	@Override
@@ -52,9 +78,12 @@ public class Home extends Activity {
 		autoUpdate.scheduleAtFixedRate(new TimerTask() {
 			@Override
 			public void run() {
+				// If the last image is done loading, toggle a new one
 				runOnUiThread(new Runnable() {
 					public void run() {
-						updateInterface();
+						for (Camera camera : cameras) {
+							camera.update();
+						}
 					}
 				});
 			}
@@ -66,8 +95,38 @@ public class Home extends Activity {
 		super.onPause();
 	}
 	
-	private void updateInterface() {
+	public void onClick(View v) {
+		RobotCommand cmd = new RobotCommand();
 		
+		switch(v.getId()) {
+		case R.id.stop:
+			cmd.setComponent(RobotCommand.MOVE_STOP);
+			break;
+		case R.id.forward:
+			cmd.setComponent(RobotCommand.MOVE_FORWARD);
+			break;
+		case R.id.reverse:
+			cmd.setComponent(RobotCommand.MOVE_REVERSE);
+			break;
+		case R.id.left:
+			cmd.setComponent(RobotCommand.MOVE_LEFT);
+			break;
+		case R.id.right:
+			cmd.setComponent(RobotCommand.MOVE_RIGHT);
+			break;
+		default:
+			Log.e("Home", "Unknown command: " + v.getId());
+			return;
+		}
+		
+		cmd.setIssueTime(System.currentTimeMillis());
+		cmd.setValue(100);
+		
+		Gson gson = new Gson();
+		String json = gson.toJson(cmd);
+		
+		CommandPoster post = new CommandPoster();
+		post.execute(buildURL()+"/command", json);
 	}
 	
 	@Override

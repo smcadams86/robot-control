@@ -9,5 +9,11 @@
     
     <string name="front_image">Front Camera Image</string>
     <string name="back_image">Back Camera Image</string>
+    
+    <string name="stop">Stop</string>
+    <string name="forward">Forward</string>
+    <string name="reverse">Reverse</string>
+    <string name="left">Left</string>
+    <string name="right">Right</string>
 
 </resources>

@@ -1,6 +1,12 @@
 package edu.umn.robotcontrol.domain;
 
 public class RobotCommand implements Comparable<RobotCommand>{
+	public static final int MOVE_RIGHT=1;
+	public static final int MOVE_LEFT=2;
+	public static final int MOVE_REVERSE=3;
+	public static final int MOVE_FORWARD=4;
+	public static final int MOVE_STOP=5;
+	
 	private int component;
 	private int value;
 	private long issueTime;

@@ -5,27 +5,27 @@ import java.util.TimerTask;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.location.Location;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.LocationSource;
 import com.google.android.gms.maps.MapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-public class Map extends Activity {
+public class Map extends Activity implements LocationSource {
 	static final LatLng QJE = new LatLng(44.752624, -93.227638);
 	static final LatLng MSP = new LatLng(44.890454, -93.230632);
 	
+	private OnLocationChangedListener positionListener;
 	private LatLng loc;
 	private GoogleMap map;
-	private MarkerOptions robot;
-	private Marker robot_marker;
 	private Timer autoUpdate;
 
 	@Override
@@ -39,42 +39,56 @@ public class Map extends Activity {
 		map.setMapType(GoogleMap.MAP_TYPE_HYBRID);
 		map.addMarker(new MarkerOptions().position(MSP).title("MSP ASR-9"));
 		map.addMarker(new MarkerOptions().position(QJE).title("QJE CARSR"));
-		
-		robot = new MarkerOptions()
-			.position(loc)
-			.title("Robot")
-			.snippet(loc.toString())
-			.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_launcher));
-		robot_marker = map.addMarker(robot);
 		map.moveCamera(CameraUpdateFactory.newLatLngZoom(loc, 15));
 		map.animateCamera(CameraUpdateFactory.zoomTo(10), 500, null);
+		map.setLocationSource(this);
+		map.setMyLocationEnabled(true);
+	}
+	
+	private void startTimer() {
+		if (autoUpdate == null && positionListener != null) {
+			long period = Long.valueOf(PreferenceManager.getDefaultSharedPreferences(this).getString("pref_update_period", "1000"));
+			autoUpdate = new Timer();
+			autoUpdate.scheduleAtFixedRate(new TimerTask() {
+				@Override
+				public void run() {
+					loc = new LatLng(loc.latitude + (MSP.latitude - QJE.latitude)/60,
+							         loc.longitude + (MSP.longitude - QJE.longitude)/60); 
+					Location tmp = new Location("");
+					tmp.setLatitude(loc.latitude);
+					tmp.setLongitude(loc.longitude);
+					positionListener.onLocationChanged(tmp);
+				}
+			}, 0, period);
+		}
+	}
+	
+	private void stopTimer() {
+		if (autoUpdate != null) {
+			autoUpdate.cancel();
+			autoUpdate = null;
+		}
 	}
 
 	@Override
 	public void onResume() {
 		super.onResume();
-		
-		long period = Long.valueOf(PreferenceManager.getDefaultSharedPreferences(this).getString("pref_update_period", "1000"));
-		autoUpdate = new Timer();
-		autoUpdate.scheduleAtFixedRate(new TimerTask() {
-			@Override
-			public void run() {
-				loc = new LatLng(loc.latitude + (MSP.latitude - QJE.latitude)/60,
-						         loc.longitude + (MSP.longitude - QJE.longitude)/60); 
-				robot.position(loc);
-				runOnUiThread(new Runnable() {
-					public void run() {
-						robot_marker.remove();
-						robot_marker = map.addMarker(robot);
-					}
-				});
-			}
-		}, 0, period);
+		startTimer();
+		Log.e("Map", "onResume");
 	}
 	
 	public void onPause() {
-		autoUpdate.cancel();
+		Log.e("Map", "onPause");
+		stopTimer();
 		super.onPause();
+	}
+
+	@Override
+	public void activate(OnLocationChangedListener listener) {
+		// TODO Auto-generated method stub
+		Log.e("Map", "Activate");
+		positionListener = listener;
+		startTimer();
 	}
 
 	@Override
@@ -82,6 +96,14 @@ public class Map extends Activity {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.map, menu);
 		return true;
+	}
+
+	@Override
+	public void deactivate() {
+		// TODO Auto-generated method stub
+		Log.e("Map", "Deactivate");
+		stopTimer();
+		positionListener = null;
 	}
 	
 	public void goToSettings() {
@@ -100,5 +122,4 @@ public class Map extends Activity {
 	            return super.onOptionsItemSelected(item);
 	    }
 	}
-
 }

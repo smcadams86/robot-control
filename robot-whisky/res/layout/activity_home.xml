@@ -8,27 +8,115 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".Home" >
     
-    <View android:id="@+id/strut"
+    <View android:id="@+id/vertical_strut"
         android:layout_width="0dp"
-        android:layout_height="0dp" 
-        android:layout_centerHorizontal="true"/>
-
-    <ImageView
-        android:id="@+id/front"
-		android:layout_width="0dp"
-		android:layout_height="wrap_content"
-		android:layout_alignRight="@id/strut"
-        android:layout_alignParentLeft="true"
-		android:contentDescription="@string/front_image"
-		/>
+        android:layout_height="0dp"
+        android:layout_centerHorizontal="true" />
+    <View android:id="@+id/horizontal_strut"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_centerVertical="true" />
     
-    <ImageView
-        android:id="@+id/back"
-		android:layout_width="0dp"
-		android:layout_height="wrap_content"
-		android:layout_alignLeft="@id/strut"
+    <FrameLayout
+        android:id="@+id/frame_front"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignRight="@id/vertical_strut"
+        android:layout_alignBottom="@id/horizontal_strut">
+        <ImageView
+	        android:id="@+id/img_front"	
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_gravity="top"
+			android:scaleType="fitStart"
+			android:contentDescription="@string/front_image" />
+        <ProgressBar
+            android:id="@+id/front_load"
+            android:layout_gravity="right"
+            style="@style/GeneralProgressIndicator" />
+    </FrameLayout>
+    
+    <FrameLayout
+        android:id="@+id/frame_back"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:layout_alignParentRight="true"
-		android:contentDescription="@string/back_image"
-		/>
+        android:layout_alignParentTop="true"
+        android:layout_alignLeft="@id/vertical_strut"
+        android:layout_alignBottom="@id/horizontal_strut">
+        
+	    <ImageView
+	        android:id="@+id/img_back"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:scaleType="fitStart"
+			android:contentDescription="@string/back_image" />
+	    <ProgressBar
+	        android:id="@+id/back_load"
+	        android:layout_gravity="right"
+            style="@style/GeneralProgressIndicator" />
+    </FrameLayout>
+
+    
+    <RelativeLayout
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignTop="@id/horizontal_strut"
+        android:layout_alignParentBottom="true">
+	    
+        <ImageButton
+            android:id="@+id/stop"
+            android:layout_centerInParent="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/stop"
+            android:contentDescription="@string/stop"
+            android:onClick="onClick" />
+            
+        <ImageButton
+            android:id="@+id/forward"
+            android:layout_above="@id/stop"
+            android:layout_centerHorizontal="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/forward"
+            android:contentDescription="@string/forward"
+            android:onClick="onClick" />
+        
+        <ImageButton
+            android:id="@+id/reverse"
+            android:layout_below="@id/stop"
+            android:layout_centerHorizontal="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/backward"
+            android:contentDescription="@string/reverse"
+            android:onClick="onClick" />
+        
+        <ImageButton
+            android:id="@+id/left"
+            android:layout_toLeftOf="@id/stop"
+            android:layout_centerVertical="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/left"
+            android:contentDescription="@string/left"
+            android:onClick="onClick" />
+        
+        <ImageButton
+            android:id="@+id/right"
+            android:layout_toRightOf="@id/stop"
+            android:layout_centerVertical="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/right"
+            android:contentDescription="@string/right"
+            android:onClick="onClick" />
+        
+    </RelativeLayout>
 
 </RelativeLayout>
