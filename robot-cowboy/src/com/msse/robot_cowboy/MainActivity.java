@@ -1,4 +1,4 @@
-package com.msse.atmegacontrollerapp;
+package com.msse.robot_cowboy;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -24,12 +24,6 @@ import com.hoho.android.usbserial.driver.UsbSerialProber;
 import com.hoho.android.usbserial.util.HexDump;
 import com.hoho.android.usbserial.util.SerialInputOutputManager;
 
-/**
- * An example full-screen activity that shows and hides the system UI (i.e.
- * status bar and navigation/system bar) with user interaction.
- * 
- * @see SystemUiHider
- */
 public class MainActivity extends Activity {
 
     private final String TAG = MainActivity.class.getSimpleName();
@@ -235,5 +229,4 @@ camera.takePicture(null, null, new Camera.PictureCallback() {
             }
         }
     };
-
 }
