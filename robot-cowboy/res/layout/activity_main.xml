@@ -48,14 +48,14 @@
             android:layout_centerHorizontal="true"
             android:src="@drawable/backward" />
     </RelativeLayout>
-
+    
     <Button
         android:id="@+id/photo_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:text="Take Photo" />
-    
+
     <TextView
         android:id="@+id/logTitle"
         android:layout_width="wrap_content"

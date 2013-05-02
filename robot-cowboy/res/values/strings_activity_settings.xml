@@ -1,0 +1,28 @@
+<resources>
+
+    <string name="title_activity_settings">Settings</string>
+
+    <!-- Strings related to Settings -->
+    
+    <string name="pref_title_data_source">Data Source</string>
+
+    <string name="pref_title_update_period">Update Period</string>
+    <string name="pref_update_period_default">5000</string>
+    <string-array name="pref_update_period_titles">
+        <item>1 Second</item>
+        <item>5 Seconds</item>
+        <item>15 Seconds</item>
+        <item>30 Seconds</item>
+        <item>45 Seconds</item>
+        <item>1 Minute</item>
+    </string-array>
+    <string-array name="pref_update_period_values">
+        <item>1000</item>
+        <item>5000</item>
+        <item>15000</item>
+        <item>30000</item>
+        <item>45000</item>
+        <item>60000</item>
+    </string-array>
+
+</resources>

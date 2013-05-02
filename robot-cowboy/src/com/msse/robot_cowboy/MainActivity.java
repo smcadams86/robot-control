@@ -2,15 +2,21 @@ package com.msse.robot_cowboy;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.hardware.Camera;
 import android.hardware.usb.UsbManager;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -24,28 +30,21 @@ import com.hoho.android.usbserial.driver.UsbSerialProber;
 import com.hoho.android.usbserial.util.HexDump;
 import com.hoho.android.usbserial.util.SerialInputOutputManager;
 
+import edu.umn.robotcontrol.domain.RobotCommand;
+
 public class MainActivity extends Activity {
 
     private final String TAG = MainActivity.class.getSimpleName();
-
-    /**
-     * The device currently in use, or {@code null}.
-     */
     private UsbSerialDriver mSerialDevice;
-
-    /**
-     * The system's USB service.
-     */
     private UsbManager mUsbManager;
-
     private TextView mTitleTextView;
     private TextView mDumpTextView;
     private ScrollView mScrollView;
-
     private final ExecutorService mExecutor = Executors
             .newSingleThreadExecutor();
-
     private SerialInputOutputManager mSerialIoManager;
+    private Camera camera;
+    private Timer commandPollingTimer = null;
 
     private final SerialInputOutputManager.Listener mListener = new SerialInputOutputManager.Listener() {
 
@@ -64,14 +63,19 @@ public class MainActivity extends Activity {
             });
         }
     };
-
-	private Camera camera;
+	
+	private String buildURL() {
+		String dataSource = PreferenceManager.getDefaultSharedPreferences(this).getString("pref_data_source", "");
+		return "http://" + dataSource + "/control";
+	}
 
     @Override
     protected void onPause() {
         super.onPause();
         stopIoManager();
-        camera.release();
+        if (camera != null) {
+        	camera.release();
+        }
         camera = null;
         if (mSerialDevice != null) {
             try {
@@ -81,35 +85,57 @@ public class MainActivity extends Activity {
             }
             mSerialDevice = null;
         }
+        stopPolling();
     }
+    
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.activity_main, menu);
+		return true;
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+	    // Handle item selection
+	    switch (item.getItemId()) {
+	        case R.id.action_settings:
+	        	Intent intent = new Intent(this, SettingsActivity.class);
+	    		startActivity(intent);
+	            return true;
+	        default:
+	            return super.onOptionsItemSelected(item);
+	    }
+	}
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        camera = Camera.open();
-        mSerialDevice = UsbSerialProber.acquire(mUsbManager);
-        Log.d(TAG, "Resumed, mSerialDevice=" + mSerialDevice);
-        if (mSerialDevice == null) {
-            mTitleTextView.setText("No serial device.");
-        } else {
-            try {
-                mSerialDevice.open();
-            } catch (IOException e) {
-                Log.e(TAG, "Error setting up device: " + e.getMessage(), e);
-                mTitleTextView.setText("Error opening device: "
-                        + e.getMessage());
-                try {
-                    mSerialDevice.close();
-                } catch (IOException e2) {
-                    // Ignore.
-                }
-                mSerialDevice = null;
-                return;
-            }
-            mTitleTextView.setText("Serial device: " + mSerialDevice);
-        }
-        onDeviceStateChange();
-    }
+	protected void onResume() {
+		super.onResume();
+		camera = Camera.open();
+		mSerialDevice = UsbSerialProber.acquire(mUsbManager);
+		Log.d(TAG, "Resumed, mSerialDevice=" + mSerialDevice);
+		if (mSerialDevice == null) {
+			mTitleTextView.setText("No serial device.");
+		} else {
+			try {
+				mSerialDevice.open();
+			} catch (IOException e) {
+				Log.e(TAG, "Error setting up device: " + e.getMessage(), e);
+				mTitleTextView.setText("Error opening device: "
+						+ e.getMessage());
+				try {
+					mSerialDevice.close();
+				} catch (IOException e2) {
+					// Ignore.
+				}
+				mSerialDevice = null;
+				return;
+			}
+			mTitleTextView.setText("Serial device: " + mSerialDevice);
+		}
+		onDeviceStateChange();
+		startPolling();
+	}
 
     private void stopIoManager() {
         if (mSerialIoManager != null) {
@@ -144,6 +170,7 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+		PreferenceManager.setDefaultValues(this, R.xml.preferences, true);
         setContentView(R.layout.activity_main);
 
         mUsbManager = (UsbManager) getSystemService(Context.USB_SERVICE);
@@ -164,69 +191,122 @@ public class MainActivity extends Activity {
         stopBtn.setOnClickListener(controlClickListener);
         rightBtn.setOnClickListener(controlClickListener);
         backwardBtn.setOnClickListener(controlClickListener);
-        pictureBtn.setOnClickListener(new OnClickListener(){
-
-			@Override
-			public void onClick(View v) {
-camera.takePicture(null, null, new Camera.PictureCallback() {
-					
-					@Override
-					public void onPictureTaken(byte[] data, Camera camera) {
-						Toast.makeText(getApplicationContext(), "Took Picture, size " + data.length + " bytes", Toast.LENGTH_LONG).show();
-						String FILENAME = "image_file";
-
-						try{
-							FileOutputStream fos = openFileOutput(FILENAME, Context.MODE_PRIVATE);
-							fos.write(data);
-							fos.close();
-//							Bitmap myBitmap = BitmapFactory.decodeStream(openFileInput(FILENAME));
-//							ImageView myImage = (ImageView) findViewById(R.id.imageview);
-//							myImage.setImageBitmap(myBitmap);
-						} catch(Exception e){
-							Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG).show();
-						}
-					}
-				});
-			}
-        	
-        });
-
+        pictureBtn.setOnClickListener(cameraClickListener);
+        
+        startPolling();
     }
+    
+    private void startPolling() {
+    	if (commandPollingTimer == null) {
+    		long period = Long.valueOf(PreferenceManager
+					.getDefaultSharedPreferences(this).getString(
+							"pref_update_period", "1000"));
+    		commandPollingTimer = new Timer();
+    		commandPollingTimer.scheduleAtFixedRate(new TimerTask() {
+				@Override
+				public void run() {
+					CommandPoller poller = new CommandPoller(MainActivity.this);
+					poller.execute(buildURL() +"/command");
+				}
+			}, 0, period);
+    	}
+    }
+    private void stopPolling() {
+    	if (commandPollingTimer != null) {
+    		Log.v(TAG, "Polling timer shutting down...");
+    		commandPollingTimer.cancel();
+    		commandPollingTimer = null;
+    	}
+    }
+    
+	private OnClickListener cameraClickListener = new OnClickListener() {
+		@Override
+		public void onClick(View v) {
+			camera.takePicture(null, null, new Camera.PictureCallback() {
+				@Override
+				public void onPictureTaken(byte[] data, Camera camera) {
+					Toast.makeText(getApplicationContext(),
+							"Took Picture, size " + data.length + " bytes",
+							Toast.LENGTH_LONG).show();
+					String FILENAME = "image_file";
+					try {
+						FileOutputStream fos = openFileOutput(FILENAME,
+								Context.MODE_PRIVATE);
+						fos.write(data);
+						fos.close();
+					} catch (Exception e) {
+						Toast.makeText(getApplicationContext(), e.getMessage(),
+								Toast.LENGTH_LONG).show();
+					}
+				}
+			});
+		}
+	};
 
     private OnClickListener controlClickListener = new OnClickListener() {
 
         @Override
         public void onClick(View v) {
-            String command = "S";
+        	RobotCommand command = new RobotCommand();
+        	command.setComponent(RobotCommand.MOVE_STOP);
+        	command.setValue(100);
+        	
             switch (v.getId()) {
             case R.id.forward_btn:
-                command = "F";
+            	command.setComponent(RobotCommand.MOVE_FORWARD);
                 break;
             case R.id.left_btn:
-                command = "L";
+            	command.setComponent(RobotCommand.MOVE_LEFT);
                 break;
             case R.id.stop_btn:
-                command = "S";
+            	command.setComponent(RobotCommand.MOVE_STOP);
                 break;
             case R.id.right_btn:
-                command = "R";
+            	command.setComponent(RobotCommand.MOVE_RIGHT);
                 break;
             case R.id.backward_btn:
-                command = "B";
+            	command.setComponent(RobotCommand.MOVE_REVERSE);
                 break;
             }
-
-            try {
-                if (mSerialDevice != null) {
-                    mSerialDevice.write(command.getBytes(), 1000);
-                }
-                else {
-                	mDumpTextView.append("\nNo connected Device..");
-                    mScrollView.smoothScrollTo(0, mDumpTextView.getBottom());
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            executeCommand(command);
         }
     };
+    
+    public void executeCommand(RobotCommand command) {
+    	String serialCommand = "S";
+    	if (command == null) {
+    		return;
+    	}
+    	switch(command.getComponent()) {
+    	case RobotCommand.MOVE_FORWARD:
+    		serialCommand = "F";
+    		break;
+    	case RobotCommand.MOVE_LEFT:
+    		serialCommand = "L";
+    		break;
+    	case RobotCommand.MOVE_REVERSE:
+    		serialCommand = "B";
+    		break;
+    	case RobotCommand.MOVE_RIGHT:
+    		serialCommand = "R";
+    		break;
+    	case RobotCommand.MOVE_STOP:
+    		serialCommand = "S";
+    		break;
+    	}
+    	
+    	Log.v(TAG, "Sending serial command [" + serialCommand + "]");
+    	
+        try {
+            if (mSerialDevice != null) {
+                mSerialDevice.write(serialCommand.getBytes(), 1000);
+            }
+            else {
+            	mDumpTextView.append("\nNo connected Device..");
+                mScrollView.smoothScrollTo(0, mDumpTextView.getBottom());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
