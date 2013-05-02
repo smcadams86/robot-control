@@ -222,24 +222,26 @@ public class MainActivity extends Activity {
 	private OnClickListener cameraClickListener = new OnClickListener() {
 		@Override
 		public void onClick(View v) {
-			camera.takePicture(null, null, new Camera.PictureCallback() {
-				@Override
-				public void onPictureTaken(byte[] data, Camera camera) {
-					Toast.makeText(getApplicationContext(),
-							"Took Picture, size " + data.length + " bytes",
-							Toast.LENGTH_LONG).show();
-					String FILENAME = "image_file";
-					try {
-						FileOutputStream fos = openFileOutput(FILENAME,
-								Context.MODE_PRIVATE);
-						fos.write(data);
-						fos.close();
-					} catch (Exception e) {
-						Toast.makeText(getApplicationContext(), e.getMessage(),
+			if (camera != null) {
+				camera.takePicture(null, null, new Camera.PictureCallback() {
+					@Override
+					public void onPictureTaken(byte[] data, Camera camera) {
+						Toast.makeText(getApplicationContext(),
+								"Took Picture, size " + data.length + " bytes",
 								Toast.LENGTH_LONG).show();
+						String FILENAME = "image_file";
+						try {
+							FileOutputStream fos = openFileOutput(FILENAME,
+									Context.MODE_PRIVATE);
+							fos.write(data);
+							fos.close();
+						} catch (Exception e) {
+							Toast.makeText(getApplicationContext(),
+									e.getMessage(), Toast.LENGTH_LONG).show();
+						}
 					}
-				}
-			});
+				});
+			}
 		}
 	};
 
