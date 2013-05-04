@@ -57,6 +57,7 @@ public class MainActivity extends Activity {
     private SerialInputOutputManager mSerialIoManager;
     private Timer commandPollingTimer = null;
     private Timer cameraPostingTimer = null;
+    private boolean previewing = false;
     
     LocationListener onLocationChange=new LocationListener() {
         public void onLocationChanged(Location location) {
@@ -296,6 +297,10 @@ public class MainActivity extends Activity {
     private OnClickListener snapListener = new OnClickListener(){
     	@Override
     	public void onClick(View v){
+    		if(!previewing){
+    			Toast.makeText(getApplicationContext(), "Start the preview first", Toast.LENGTH_SHORT).show();
+    			return;
+    		}
     		camera.takePicture(null, null, new Camera.PictureCallback() {
 			@Override
 			public void onPictureTaken(byte[] data, Camera camera) {
@@ -312,6 +317,7 @@ public class MainActivity extends Activity {
 					Toast.makeText(getApplicationContext(),
 							e.getMessage(), Toast.LENGTH_LONG).show();
 				}
+				previewing = false;
 				camera.stopPreview();
 			}
     		});
@@ -334,7 +340,7 @@ public class MainActivity extends Activity {
 					e1.printStackTrace();
 				}
 				camera.startPreview();
-				
+				previewing = true;
 			}
 		}
 	};

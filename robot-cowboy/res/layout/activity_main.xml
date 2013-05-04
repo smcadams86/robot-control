@@ -61,7 +61,7 @@
 	              android:layout_alignParentLeft="true"
 	              android:layout_alignParentTop="true"
 	              android:gravity="left"
-	              android:text="Take Photo" />
+	              android:text="Start Preview" />
 
 	          <Button
 	              android:id="@+id/snap"
