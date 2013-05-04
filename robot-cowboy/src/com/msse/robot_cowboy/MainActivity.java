@@ -327,6 +327,7 @@ public class MainActivity extends Activity {
 			camera = Camera.open();
 			if (camera != null) {
 				try {
+					camera.setDisplayOrientation(90);
 					camera.setPreviewDisplay(surfaceHolder);
 				} catch (IOException e1) {
 					// TODO Auto-generated catch block

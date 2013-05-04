@@ -48,20 +48,31 @@
             android:layout_centerHorizontal="true"
             android:src="@drawable/backward" />
     </RelativeLayout>
-    
-    <Button
-        android:id="@+id/photo_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="Take Photo" />
 
-    <Button
-        android:id="@+id/snap"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="Snap" />
+	      <RelativeLayout
+	          android:layout_width="match_parent"
+	          android:layout_height="wrap_content"
+	          android:gravity="left" >
+
+	          <Button
+	              android:id="@+id/photo_btn"
+	              android:layout_width="wrap_content"
+	              android:layout_height="wrap_content"
+	              android:layout_alignParentLeft="true"
+	              android:layout_alignParentTop="true"
+	              android:gravity="left"
+	              android:text="Take Photo" />
+
+	          <Button
+	              android:id="@+id/snap"
+	              android:layout_width="wrap_content"
+	              android:layout_height="wrap_content"
+	              android:layout_alignParentRight="true"
+	              android:layout_alignParentTop="true"
+	              android:gravity="right"
+	              android:text="Snap" />
+
+	      </RelativeLayout>
 
     <TextView
         android:id="@+id/logTitle"
@@ -69,11 +80,10 @@
         android:layout_height="wrap_content"
         android:typeface="monospace" />
 
-
     <ScrollView
         android:id="@+id/logScroller"
         android:layout_width="fill_parent"
-        android:layout_height="98dp" >
+        android:layout_height="58dp" >
 
         <TextView
             android:id="@+id/logText"
