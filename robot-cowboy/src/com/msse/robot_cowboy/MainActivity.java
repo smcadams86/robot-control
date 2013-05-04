@@ -4,6 +4,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.HashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -11,6 +12,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.hardware.Camera;
+import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.location.Location;
 import android.location.LocationListener;
@@ -164,7 +166,38 @@ public class MainActivity extends Activity {
 		onDeviceStateChange();
 		startPolling();
 	}
-
+    protected void onResume() {
+        super.onResume();
+        camera = Camera.open();
+        HashMap<String, UsbDevice> deviceList = mUsbManager.getDeviceList();
+        mTitleTextView.setText("Listing " + deviceList.keySet().size() + " devices\n");
+        for(String s : deviceList.keySet()){
+            mTitleTextView.append("Key: " + s + " " + deviceList.get(s) + "\n");
+        }
+        
+        mSerialDevice = UsbSerialProber.acquire(mUsbManager);
+        Log.d(TAG, "Resumed, mSerialDevice=" + mSerialDevice);
+        if (mSerialDevice == null) {
+            mTitleTextView.append("No serial device.\n");
+        } else {
+            try {
+                mSerialDevice.open();
+            } catch (IOException e) {
+                Log.e(TAG, "Error setting up device: " + e.getMessage(), e);
+                mTitleTextView.append("Error opening device: "
+                        + e.getMessage());
+                try {
+                    mSerialDevice.close();
+                } catch (IOException e2) {
+                    // Ignore.
+                }
+                mSerialDevice = null;
+                return;
+            }
+            mTitleTextView.append("Serial device: " + mSerialDevice);
+        }
+        onDeviceStateChange();
+    }
     private void stopIoManager() {
         if (mSerialIoManager != null) {
             Log.i(TAG, "Stopping io manager ..");
