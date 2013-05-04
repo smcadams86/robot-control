@@ -138,34 +138,6 @@ public class MainActivity extends Activity {
 	    }
 	}
 
-    @Override
-	protected void onResume() {
-		super.onResume();
-		camera = Camera.open();
-		mSerialDevice = UsbSerialProber.acquire(mUsbManager);
-		Log.d(TAG, "Resumed, mSerialDevice=" + mSerialDevice);
-		if (mSerialDevice == null) {
-			mTitleTextView.setText("No serial device.");
-		} else {
-			try {
-				mSerialDevice.open();
-			} catch (IOException e) {
-				Log.e(TAG, "Error setting up device: " + e.getMessage(), e);
-				mTitleTextView.setText("Error opening device: "
-						+ e.getMessage());
-				try {
-					mSerialDevice.close();
-				} catch (IOException e2) {
-					// Ignore.
-				}
-				mSerialDevice = null;
-				return;
-			}
-			mTitleTextView.setText("Serial device: " + mSerialDevice);
-		}
-		onDeviceStateChange();
-		startPolling();
-	}
     protected void onResume() {
         super.onResume();
         camera = Camera.open();
