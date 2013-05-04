@@ -40,6 +40,7 @@ public class SettingsActivity extends Activity {
             sharedPreferences.registerOnSharedPreferenceChangeListener(this);
             onSharedPreferenceChanged(sharedPreferences, "pref_data_source");
             onSharedPreferenceChanged(sharedPreferences, "pref_update_period");
+            onSharedPreferenceChanged(sharedPreferences, "pref_camera_period");
         }
 
         @Override

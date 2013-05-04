@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="pref_camera_period_default">15000</string>
+    <string name="pref_title_camera_period">Camera Frequency</string>
+    
+    <string-array name="pref_camera_period_titles">
+        <item>5 Seconds</item>
+        <item>15 Seconds</item>
+        <item>30 Seconds</item>
+        <item>45 Seconds</item>
+        <item>1 Minute</item>
+    </string-array>
+    <string-array name="pref_camera_period_values">
+        <item>5000</item>
+        <item>15000</item>
+        <item>30000</item>
+        <item>45000</item>
+        <item>60000</item>
+    </string-array>
+
+</resources>

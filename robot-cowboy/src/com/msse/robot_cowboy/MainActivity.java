@@ -52,8 +52,8 @@ public class MainActivity extends Activity {
     private final ExecutorService mExecutor = Executors
             .newSingleThreadExecutor();
     private SerialInputOutputManager mSerialIoManager;
-    private Camera camera;
     private Timer commandPollingTimer = null;
+    private Timer cameraPostingTimer = null;
     
     LocationListener onLocationChange=new LocationListener() {
         public void onLocationChanged(Location location) {
@@ -78,7 +78,6 @@ public class MainActivity extends Activity {
       
 
     private final SerialInputOutputManager.Listener mListener = new SerialInputOutputManager.Listener() {
-
         @Override
         public void onRunError(Exception e) {
             Log.d(TAG, "Runner stopped.");
@@ -104,10 +103,6 @@ public class MainActivity extends Activity {
     protected void onPause() {
         super.onPause();
         stopIoManager();
-        if (camera != null) {
-        	camera.release();
-        }
-        camera = null;
         if (mSerialDevice != null) {
             try {
                 mSerialDevice.close();
@@ -116,7 +111,7 @@ public class MainActivity extends Activity {
             }
             mSerialDevice = null;
         }
-        stopPolling();
+        stopAsyncTasks();
     }
     
 	@Override
@@ -141,7 +136,6 @@ public class MainActivity extends Activity {
 
     protected void onResume() {
         super.onResume();
-        camera = Camera.open();
         HashMap<String, UsbDevice> deviceList = mUsbManager.getDeviceList();
         mTitleTextView.setText("Listing " + deviceList.keySet().size() + " devices\n");
         for(String s : deviceList.keySet()){
@@ -170,7 +164,7 @@ public class MainActivity extends Activity {
             mTitleTextView.append("Serial device: " + mSerialDevice);
         }
         onDeviceStateChange();
-        startPolling();
+        startAsyncTasks();
     }
     private void stopIoManager() {
         if (mSerialIoManager != null) {
@@ -233,10 +227,13 @@ public class MainActivity extends Activity {
 
     }
     
-    private void startPolling() {
+    private void startAsyncTasks() {
     	long period = Long.valueOf(PreferenceManager
 				.getDefaultSharedPreferences(this).getString(
 						"pref_update_period", "1000"));
+    	long cameraFrequency = Long.valueOf(PreferenceManager
+				.getDefaultSharedPreferences(this).getString(
+						"pref_camera_period", "15000"));
     	
     	if (commandPollingTimer == null) {
     		commandPollingTimer = new Timer();
@@ -244,7 +241,6 @@ public class MainActivity extends Activity {
 				@Override
 				public void run() {
 					runOnUiThread(new Runnable(){
-
 						@Override
 						public void run() {
 							CommandPoller poller = new CommandPoller(MainActivity.this);
@@ -255,14 +251,35 @@ public class MainActivity extends Activity {
 			}, 0, period);
     	}
     	
+    	if (cameraPostingTimer == null) {
+    		cameraPostingTimer = new Timer();
+    		cameraPostingTimer.scheduleAtFixedRate(new TimerTask() {
+				@Override
+				public void run() {
+					runOnUiThread(new Runnable(){
+						@Override
+						public void run() {
+							CameraPoster cameraPoster = new CameraPoster(MainActivity.this);
+							cameraPoster.execute(buildURL() +"/photo");
+						}
+					});
+				}
+			}, 0, cameraFrequency);
+    	}
+    	
 		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
 											   period, 0, onLocationChange);
     }
-    private void stopPolling() {
+    private void stopAsyncTasks() {
     	if (commandPollingTimer != null) {
     		Log.v(TAG, "Polling timer shutting down...");
     		commandPollingTimer.cancel();
     		commandPollingTimer = null;
+    	}
+    	if (cameraPostingTimer != null) {
+    		Log.v(TAG, "Camera timer shutting down...");
+    		cameraPostingTimer.cancel();
+    		cameraPostingTimer = null;
     	}
     	locationManager.removeUpdates(onLocationChange);
     }
@@ -270,6 +287,7 @@ public class MainActivity extends Activity {
 	private OnClickListener cameraClickListener = new OnClickListener() {
 		@Override
 		public void onClick(View v) {
+			Camera camera = null;
 			if (camera != null) {
 				camera.takePicture(null, null, new Camera.PictureCallback() {
 					@Override

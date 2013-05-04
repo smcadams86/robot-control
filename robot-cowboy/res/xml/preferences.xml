@@ -19,7 +19,16 @@
         android:negativeButtonText="@null"
         android:positiveButtonText="@null"
         android:title="@string/pref_title_update_period" />
-
+    
+    <ListPreference
+        android:defaultValue="@string/pref_camera_period_default"
+        android:entries="@array/pref_camera_period_titles"
+        android:entryValues="@array/pref_camera_period_values"
+        android:key="pref_camera_period"
+        android:negativeButtonText="@null"
+        android:positiveButtonText="@null"
+        android:title="@string/pref_title_camera_period" />
+    
 </PreferenceScreen>
 
 
