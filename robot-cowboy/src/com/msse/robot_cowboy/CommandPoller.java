@@ -44,14 +44,16 @@ public class CommandPoller extends AsyncTask<String, Void, RobotCommand> {
 			request.setHeader("Content-Type", "application/json");
 			Log.v(TAG, "URL: "+params[0]);
 			HttpResponse response = client.execute(request);
-			String json = getStringFromInputStream(response.getEntity().getContent());
-			Log.v(TAG, json);
-			if (response.getStatusLine().getStatusCode() != STATUS_OK) {
-				Log.e(TAG, "Server returned failure");
-			}
-			else {
-				Gson gson = new Gson();
-				command = gson.fromJson(json, RobotCommand.class); 
+			if (response.getEntity() != null) {
+				String json = getStringFromInputStream(response.getEntity().getContent());
+				Log.v(TAG, json);
+				if (response.getStatusLine().getStatusCode() != STATUS_OK) {
+					Log.e(TAG, "Server returned failure");
+				}
+				else {
+					Gson gson = new Gson();
+					command = gson.fromJson(json, RobotCommand.class); 
+				}
 			}
 			client.close();
 		} catch (UnsupportedEncodingException e) {

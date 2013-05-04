@@ -13,19 +13,15 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
-import edu.umn.robotcontrol.domain.RobotCommand;
 
 import com.google.gson.Gson;
+
+import edu.umn.robotcontrol.domain.RobotCommand;
 
 public class Home extends Activity {
 	private Timer autoUpdate;
 	private Camera cameras[];
-	
-	private String buildURL() {
-		String dataSource = PreferenceManager.getDefaultSharedPreferences(this).getString("pref_data_source", "");
-		return "http://" + dataSource + "/control";
-	}
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -41,14 +37,21 @@ public class Home extends Activity {
 		cameras = new Camera[2];
 		cameras[0] = new Camera(
 				(ImageView)findViewById(R.id.img_front),
-				(ProgressBar)findViewById(R.id.front_load),
-				buildURL() + "/photo" + "?width=%width%&height=%height%");
-		cameras[0].update();
+				(ProgressBar)findViewById(R.id.front_load));
 		cameras[1] = new Camera(
 				(ImageView)findViewById(R.id.img_back),
-				(ProgressBar)findViewById(R.id.back_load),
-				buildURL() + "/photo" + "?width=%width%&height=%height%");
-		cameras[1].update();
+				(ProgressBar)findViewById(R.id.back_load));
+	}
+	
+	private void resetURL() {
+		cameras[0].setURL(Utility.buildURL(this) + "/photo" + "?width=%width%&height=%height%");
+		cameras[1].setURL(Utility.buildURL(this) + "/photo" + "?width=%width%&height=%height%");
+	}
+	
+	private void updateCameras() {
+		for (Camera camera : cameras) {
+			camera.update();
+		}
 	}
 
 	@Override
@@ -73,6 +76,9 @@ public class Home extends Activity {
 	public void onResume() {
 		super.onResume();
 		
+		resetURL();
+		updateCameras();
+		
 		long period = Long.valueOf(PreferenceManager.getDefaultSharedPreferences(this).getString("pref_update_period", "1000"));
 		autoUpdate = new Timer();
 		autoUpdate.scheduleAtFixedRate(new TimerTask() {
@@ -81,9 +87,7 @@ public class Home extends Activity {
 				// If the last image is done loading, toggle a new one
 				runOnUiThread(new Runnable() {
 					public void run() {
-						for (Camera camera : cameras) {
-							camera.update();
-						}
+						updateCameras();
 					}
 				});
 			}
@@ -126,7 +130,7 @@ public class Home extends Activity {
 		String json = gson.toJson(cmd);
 		
 		CommandPoster post = new CommandPoster();
-		post.execute(buildURL()+"/command", json);
+		post.execute(Utility.buildURL(this)+"/command", json);
 	}
 	
 	@Override

@@ -12,6 +12,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.hardware.Camera;
 import android.hardware.usb.UsbManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -25,16 +28,19 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.hoho.android.usbserial.driver.UsbSerialDriver;
 import com.hoho.android.usbserial.driver.UsbSerialProber;
 import com.hoho.android.usbserial.util.HexDump;
 import com.hoho.android.usbserial.util.SerialInputOutputManager;
 
 import edu.umn.robotcontrol.domain.RobotCommand;
+import edu.umn.robotcontrol.domain.RobotPosition;
 
 public class MainActivity extends Activity {
 
     private final String TAG = MainActivity.class.getSimpleName();
+    private LocationManager locationManager;
     private UsbSerialDriver mSerialDevice;
     private UsbManager mUsbManager;
     private TextView mTitleTextView;
@@ -45,6 +51,28 @@ public class MainActivity extends Activity {
     private SerialInputOutputManager mSerialIoManager;
     private Camera camera;
     private Timer commandPollingTimer = null;
+    
+    LocationListener onLocationChange=new LocationListener() {
+        public void onLocationChanged(Location location) {
+        	LocationPoster poster = new LocationPoster();
+        	RobotPosition pos = PositionFacade.locToRobotPos(location);
+    	    poster.execute(buildURL() + "/position", new Gson().toJson(pos));
+        }
+        
+        public void onProviderDisabled(String provider) {
+          // required for interface, not used
+        }
+        
+        public void onProviderEnabled(String provider) {
+          // required for interface, not used
+        }
+        
+        public void onStatusChanged(String provider, int status,
+                                      Bundle extras) {
+          // required for interface, not used
+        }
+      };
+      
 
     private final SerialInputOutputManager.Listener mListener = new SerialInputOutputManager.Listener() {
 
@@ -193,14 +221,17 @@ public class MainActivity extends Activity {
         backwardBtn.setOnClickListener(controlClickListener);
         pictureBtn.setOnClickListener(cameraClickListener);
         
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        
         startPolling();
     }
     
     private void startPolling() {
+    	long period = Long.valueOf(PreferenceManager
+				.getDefaultSharedPreferences(this).getString(
+						"pref_update_period", "1000"));
+    	
     	if (commandPollingTimer == null) {
-    		long period = Long.valueOf(PreferenceManager
-					.getDefaultSharedPreferences(this).getString(
-							"pref_update_period", "1000"));
     		commandPollingTimer = new Timer();
     		commandPollingTimer.scheduleAtFixedRate(new TimerTask() {
 				@Override
@@ -210,6 +241,9 @@ public class MainActivity extends Activity {
 				}
 			}, 0, period);
     	}
+    	
+		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+											   period, 0, onLocationChange);
     }
     private void stopPolling() {
     	if (commandPollingTimer != null) {
@@ -217,6 +251,7 @@ public class MainActivity extends Activity {
     		commandPollingTimer.cancel();
     		commandPollingTimer = null;
     	}
+    	locationManager.removeUpdates(onLocationChange);
     }
     
 	private OnClickListener cameraClickListener = new OnClickListener() {

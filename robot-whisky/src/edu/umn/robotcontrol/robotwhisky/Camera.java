@@ -13,11 +13,19 @@ public class Camera {
 	private ProgressBar progress;
 	private UpdateCamera cameraUpdater;
 	
-	public Camera(ImageView dest, ProgressBar progress, String url) {
-		this.url = url;
+	public Camera(ImageView dest, ProgressBar progress) {
+		this.url = "";
 		this.progress = progress;
 		this.view = dest;
 		this.cameraUpdater = null;
+	}
+	
+	public String getURL() {
+		return url;
+	}
+	
+	public void setURL(String url) {
+		this.url = url;
 	}
 	
 	public void update() {
