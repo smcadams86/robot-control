@@ -6,7 +6,7 @@
     -->
     <!-- NOTE: ListPreference's summary should be set to its value by the activity code. -->
     <EditTextPreference
-        android:defaultValue="mssecontacts.herokuapp.com"
+        android:defaultValue="http://robot-control.elasticbeanstalk.com"
         android:key="pref_data_source"
         android:title="@string/pref_title_data_source"
         />

@@ -18,6 +18,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
@@ -169,6 +170,7 @@ public class MainActivity extends Activity {
             mTitleTextView.append("Serial device: " + mSerialDevice);
         }
         onDeviceStateChange();
+        startPolling();
     }
     private void stopIoManager() {
         if (mSerialIoManager != null) {
@@ -228,7 +230,7 @@ public class MainActivity extends Activity {
         
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         
-        startPolling();
+
     }
     
     private void startPolling() {
@@ -241,8 +243,14 @@ public class MainActivity extends Activity {
     		commandPollingTimer.scheduleAtFixedRate(new TimerTask() {
 				@Override
 				public void run() {
-					CommandPoller poller = new CommandPoller(MainActivity.this);
-					poller.execute(buildURL() +"/command");
+					runOnUiThread(new Runnable(){
+
+						@Override
+						public void run() {
+							CommandPoller poller = new CommandPoller(MainActivity.this);
+							poller.execute(buildURL() +"/command");
+						}
+					});
 				}
 			}, 0, period);
     	}
