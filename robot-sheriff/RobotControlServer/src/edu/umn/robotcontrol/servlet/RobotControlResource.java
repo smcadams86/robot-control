@@ -20,6 +20,7 @@ import javax.ws.rs.core.Response;
 import com.google.gson.Gson;
 
 import edu.umn.robotcontrol.domain.RobotCommand;
+import edu.umn.robotcontrol.domain.RobotPosition;
 
 /**
  * @author Tyler
@@ -127,4 +128,31 @@ public class RobotControlResource {
 	  return Response.noContent().build();
   }
 
+
+  @POST
+  @Path("/position")
+  @Produces(MediaType.APPLICATION_JSON)
+  @Consumes(MediaType.APPLICATION_JSON)
+  public String handlePosition(String position) {
+    Gson gson = new Gson();
+    RobotPosition rp = gson.fromJson(position, RobotPosition.class);
+    PositionHolder.getInstance().pushCommand(rp);
+    System.out.println(rp);
+    return "{msg:'success'}";
+  }
+  
+  @GET
+  @Path("/position")
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response getRecentPosition(){
+	  RobotPosition rc = PositionHolder.getInstance().popCommand();
+	  System.out.println(rc);
+	  if(rc != null){
+		Gson gson = new Gson();
+		String json = gson.toJson(rc);
+		return Response.ok(json).build();
+	  }
+	  return Response.noContent().build();
+  }
+  
 }
