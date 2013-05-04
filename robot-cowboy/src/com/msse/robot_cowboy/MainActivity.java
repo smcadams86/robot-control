@@ -17,12 +17,15 @@ import android.hardware.usb.UsbManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -93,6 +96,8 @@ public class MainActivity extends Activity {
             });
         }
     };
+	private SurfaceView surfaceView;
+	private SurfaceHolder surfaceHolder;
 	
 	private String buildURL() {
 		String dataSource = PreferenceManager.getDefaultSharedPreferences(this).getString("pref_data_source", "");
@@ -165,6 +170,8 @@ public class MainActivity extends Activity {
         }
         onDeviceStateChange();
         startAsyncTasks();
+        surfaceView = (SurfaceView)findViewById(R.id.surfaceView1);
+        surfaceHolder = surfaceView.getHolder();
     }
     private void stopIoManager() {
         if (mSerialIoManager != null) {
@@ -214,6 +221,7 @@ public class MainActivity extends Activity {
         ImageButton rightBtn = (ImageButton) findViewById(R.id.right_btn);
         ImageButton backwardBtn = (ImageButton) findViewById(R.id.backward_btn);
         Button pictureBtn = (Button) findViewById(R.id.photo_btn);
+        Button snapBtn = (Button) findViewById(R.id.snap);
 
         forwardBtn.setOnClickListener(controlClickListener);
         leftBtn.setOnClickListener(controlClickListener);
@@ -221,6 +229,7 @@ public class MainActivity extends Activity {
         rightBtn.setOnClickListener(controlClickListener);
         backwardBtn.setOnClickListener(controlClickListener);
         pictureBtn.setOnClickListener(cameraClickListener);
+        snapBtn.setOnClickListener(snapListener);
         
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         
@@ -284,29 +293,47 @@ public class MainActivity extends Activity {
     	locationManager.removeUpdates(onLocationChange);
     }
     
+    private OnClickListener snapListener = new OnClickListener(){
+    	@Override
+    	public void onClick(View v){
+    		camera.takePicture(null, null, new Camera.PictureCallback() {
+			@Override
+			public void onPictureTaken(byte[] data, Camera camera) {
+				Toast.makeText(getApplicationContext(),
+						"Took Picture, size " + data.length + " bytes",
+						Toast.LENGTH_LONG).show();
+				String FILENAME = "image_file";
+				try {
+					FileOutputStream fos = openFileOutput(FILENAME,
+							Context.MODE_PRIVATE);
+					fos.write(data);
+					fos.close();
+				} catch (Exception e) {
+					Toast.makeText(getApplicationContext(),
+							e.getMessage(), Toast.LENGTH_LONG).show();
+				}
+				camera.stopPreview();
+			}
+    		});
+		}
+    };
+	protected Camera camera;
+    
+    
+    
 	private OnClickListener cameraClickListener = new OnClickListener() {
 		@Override
 		public void onClick(View v) {
-			Camera camera = null;
+			camera = Camera.open();
 			if (camera != null) {
-				camera.takePicture(null, null, new Camera.PictureCallback() {
-					@Override
-					public void onPictureTaken(byte[] data, Camera camera) {
-						Toast.makeText(getApplicationContext(),
-								"Took Picture, size " + data.length + " bytes",
-								Toast.LENGTH_LONG).show();
-						String FILENAME = "image_file";
-						try {
-							FileOutputStream fos = openFileOutput(FILENAME,
-									Context.MODE_PRIVATE);
-							fos.write(data);
-							fos.close();
-						} catch (Exception e) {
-							Toast.makeText(getApplicationContext(),
-									e.getMessage(), Toast.LENGTH_LONG).show();
-						}
-					}
-				});
+				try {
+					camera.setPreviewDisplay(surfaceHolder);
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				camera.startPreview();
+				
 			}
 		}
 	};
