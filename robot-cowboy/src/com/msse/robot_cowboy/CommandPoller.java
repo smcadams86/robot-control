@@ -55,11 +55,12 @@ public class CommandPoller extends AsyncTask<String, Void, RobotCommand> {
 					command = gson.fromJson(json, RobotCommand.class); 
 				}
 			}
-			client.close();
 		} catch (UnsupportedEncodingException e) {
 			Log.e(TAG, "Unsupported Encoding Exception");
 		} catch (IOException e) {
 			Log.e(TAG, "IOException");
+		} finally {
+		  client.close();
 		}
 		return command;
 	}

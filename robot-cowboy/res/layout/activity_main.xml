@@ -52,7 +52,7 @@
 	      <RelativeLayout
 	          android:layout_width="match_parent"
 	          android:layout_height="wrap_content"
-	          android:gravity="left" >
+	          android:gravity="fill_horizontal" >
 
 	          <Button
 	              android:id="@+id/photo_btn"
@@ -61,16 +61,7 @@
 	              android:layout_alignParentLeft="true"
 	              android:layout_alignParentTop="true"
 	              android:gravity="left"
-	              android:text="Start Preview" />
-
-	          <Button
-	              android:id="@+id/snap"
-	              android:layout_width="wrap_content"
-	              android:layout_height="wrap_content"
-	              android:layout_alignParentRight="true"
-	              android:layout_alignParentTop="true"
-	              android:gravity="right"
-	              android:text="Snap" />
+	              android:text="Start Capturing" />
 
 	      </RelativeLayout>
 
