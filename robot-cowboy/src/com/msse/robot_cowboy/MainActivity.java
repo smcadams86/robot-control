@@ -48,7 +48,7 @@ public class MainActivity extends Activity {
   
   private LocationManager locationManager;
   
-  private UsbSerialDriver mSerialDevice;
+  private UsbSerialDriver mSerialDriver;
   private UsbManager mUsbManager;
   private SerialInputOutputManager mSerialIoManager;
   
@@ -112,26 +112,26 @@ public class MainActivity extends Activity {
       mTitleTextView.append("Key: " + s + " " + deviceList.get(s) + "\n");
     }
 
-    mSerialDevice = UsbSerialProber.acquire(mUsbManager);
-    Log.d(TAG, "Resumed, mSerialDevice=" + mSerialDevice);
-    if (mSerialDevice == null) {
+    mSerialDriver = UsbSerialProber.acquire(mUsbManager);
+    Log.d(TAG, "Resumed, mSerialDevice=" + mSerialDriver);
+    if (mSerialDriver == null) {
       mTitleTextView.append("No serial device.\n");
     } else {
       try {
-        mSerialDevice.open();
+        mSerialDriver.open();
       } catch (IOException e) {
         Log.e(TAG, "Error setting up device: " + e.getMessage(), e);
         mTitleTextView.append("Error opening device: "
             + e.getMessage());
         try {
-          mSerialDevice.close();
+          mSerialDriver.close();
         } catch (IOException e2) {
           // Ignore.
         }
-        mSerialDevice = null;
+        mSerialDriver = null;
         return;
       }
-      mTitleTextView.append("Serial device: " + mSerialDevice);
+      mTitleTextView.append("Serial device: " + mSerialDriver);
     }
     onDeviceStateChange();
     startAsyncTasks();
@@ -143,13 +143,13 @@ public class MainActivity extends Activity {
   protected void onPause() {
     super.onPause();
     stopIoManager();
-    if (mSerialDevice != null) {
+    if (mSerialDriver != null) {
       try {
-        mSerialDevice.close();
+        mSerialDriver.close();
       } catch (IOException e) {
         // Ignore.
       }
-      mSerialDevice = null;
+      mSerialDriver = null;
     }
     stopAsyncTasks();
   }
@@ -200,8 +200,8 @@ public class MainActivity extends Activity {
     Log.v(TAG, "Sending serial command [" + serialCommand + "]");
 
     try {
-      if (mSerialDevice != null) {
-        mSerialDevice.write(serialCommand.getBytes(), 1000);
+      if (mSerialDriver != null) {
+        mSerialDriver.write(serialCommand.getBytes(), 1000);
       }
       else {
         mDumpTextView.append("\nNo connected Device..");
@@ -218,9 +218,9 @@ public class MainActivity extends Activity {
   }
   
   private void startIoManager() {
-    if (mSerialDevice != null) {
+    if (mSerialDriver != null) {
       Log.i(TAG, "Starting io manager ..");
-      mSerialIoManager = new SerialInputOutputManager(mSerialDevice,
+      mSerialIoManager = new SerialInputOutputManager(mSerialDriver,
           mListener);
       mExecutor.submit(mSerialIoManager);
     }
