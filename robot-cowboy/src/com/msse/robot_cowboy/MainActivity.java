@@ -307,6 +307,7 @@ public class MainActivity extends Activity {
         }
       }
     });
+    camera.startPreview();
   }
   
   private class CowboyLocationListener implements LocationListener {
@@ -389,10 +390,10 @@ public class MainActivity extends Activity {
 
     @Override
     public void onPreviewFrame(byte[] arg0, Camera arg1) {
-      Log.d(TAG, "Got preview frame");
       frames++;
-      if(frames %100 == 0){
-        Log.w(TAG, "got 100 preview frames");
+      if(frames % 100 == 0){
+        Log.i(TAG, "got 100 preview frames");
+        takePicture();
       }
     }
     
