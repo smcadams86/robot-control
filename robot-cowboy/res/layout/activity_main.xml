@@ -61,7 +61,7 @@
 	              android:layout_alignParentLeft="true"
 	              android:layout_alignParentTop="true"
 	              android:gravity="left"
-	              android:text="Start Preview" />
+	              android:text="Start Capturing" />
 
 	      </RelativeLayout>
 

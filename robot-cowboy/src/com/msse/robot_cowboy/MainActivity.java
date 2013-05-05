@@ -373,12 +373,12 @@ public class MainActivity extends Activity {
           }
           camera.startPreview();
           previewing = true;
-          previewBtn.setText("Stop Preview");          
+          previewBtn.setText("Stop Capturing");          
         }
       } else {
         camera.stopPreview();
         previewing = false;
-        previewBtn.setText("Start Preview");
+        previewBtn.setText("Start Capturing");
       }
     }
   };
