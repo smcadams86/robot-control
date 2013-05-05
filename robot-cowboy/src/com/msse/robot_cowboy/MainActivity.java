@@ -68,7 +68,7 @@ public class MainActivity extends Activity {
   
   LocationListener onLocationChange = new CowboyLocationListener();
   private OnClickListener snapListener = new OnSnapClickListener();
-  private OnClickListener cameraClickListener = new OnCameraClickListener();
+  private OnClickListener cameraClickListener = new OnPreviewClickListener();
   private OnClickListener controlClickListener = new OnControlClickListener();
   private final SerialInputOutputManager.Listener mListener = new CowboySerialDeviceListener();
   
@@ -242,7 +242,6 @@ public class MainActivity extends Activity {
     mScrollView.smoothScrollTo(0, mDumpTextView.getBottom());
   }
 
-
   private void startAsyncTasks() {
     long period = Long.valueOf(PreferenceManager
         .getDefaultSharedPreferences(this).getString(
@@ -253,34 +252,12 @@ public class MainActivity extends Activity {
 
     if (commandPollingTimer == null) {
       commandPollingTimer = new Timer();
-      commandPollingTimer.scheduleAtFixedRate(new TimerTask() {
-        @Override
-        public void run() {
-          runOnUiThread(new Runnable(){
-            @Override
-            public void run() {
-              CommandPoller poller = new CommandPoller(MainActivity.this);
-              poller.execute(buildURL() +"/command");
-            }
-          });
-        }
-      }, 0, period);
+      commandPollingTimer.scheduleAtFixedRate(new PollCommandsTimerTask(), 0, period);
     }
 
     if (cameraPostingTimer == null) {
       cameraPostingTimer = new Timer();
-      cameraPostingTimer.scheduleAtFixedRate(new TimerTask() {
-        @Override
-        public void run() {
-          runOnUiThread(new Runnable(){
-            @Override
-            public void run() {
-              CameraPoster cameraPoster = new CameraPoster(MainActivity.this);
-              cameraPoster.execute(buildURL() +"/photo");
-            }
-          });
-        }
-      }, 0, cameraFrequency);
+      cameraPostingTimer.scheduleAtFixedRate(new PostPhotoTimerTask(), 0, cameraFrequency);
     }
 
     locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
@@ -356,8 +333,7 @@ public class MainActivity extends Activity {
     }
   };
   
-  
-  private class OnCameraClickListener implements OnClickListener {
+  private class OnPreviewClickListener implements OnClickListener {
     @Override
     public void onClick(View v) {
       camera = Camera.open();
@@ -418,5 +394,31 @@ public class MainActivity extends Activity {
       });
     }
   };
+  
+  private class PostPhotoTimerTask extends TimerTask {
+    @Override
+    public void run() {
+      runOnUiThread(new Runnable(){
+        @Override
+        public void run() {
+          CameraPoster cameraPoster = new CameraPoster(MainActivity.this);
+          cameraPoster.execute(buildURL() +"/photo");
+        }
+      });
+    }
+  }
+  
+  private class PollCommandsTimerTask extends TimerTask {
+    @Override
+    public void run() {
+      runOnUiThread(new Runnable(){
+        @Override
+        public void run() {
+          CommandPoller poller = new CommandPoller(MainActivity.this);
+          poller.execute(buildURL() +"/command");
+        }
+      });
+    }
+  }
 
 }
