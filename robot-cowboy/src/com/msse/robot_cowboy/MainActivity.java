@@ -287,24 +287,7 @@ public class MainActivity extends Activity {
       Toast.makeText(getApplicationContext(), "Start the preview first", Toast.LENGTH_SHORT).show();
       return;
     }
-    camera.takePicture(null, null, new Camera.PictureCallback() {
-      @Override
-      public void onPictureTaken(byte[] data, Camera camera) {
-        Toast.makeText(getApplicationContext(),
-            "Took Picture, size " + data.length + " bytes",
-            Toast.LENGTH_LONG).show();
-        String FILENAME = "image_file";
-        try {
-          FileOutputStream fos = openFileOutput(FILENAME,
-              Context.MODE_PRIVATE);
-          fos.write(data);
-          fos.close();
-        } catch (Exception e) {
-          Toast.makeText(getApplicationContext(),
-              e.getMessage(), Toast.LENGTH_LONG).show();
-        }
-      }
-    });
+    camera.takePicture(null, null, new CameraHandler(getApplicationContext()));
     camera.startPreview();
   }
   

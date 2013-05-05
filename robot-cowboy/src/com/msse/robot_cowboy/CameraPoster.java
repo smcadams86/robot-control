@@ -1,14 +1,17 @@
 package com.msse.robot_cowboy;
 
 import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -20,9 +23,10 @@ import android.util.Log;
 public class CameraPoster extends AsyncTask<String, Void, Void> {
 	private final String TAG = CameraPoster.class.getSimpleName();
 	private static final int STATUS_OK = 200;
+	private Context context;
 
 	public CameraPoster(Context context) {
-
+		this.context = context;
 	}
 
 	@Override
@@ -36,15 +40,16 @@ public class CameraPoster extends AsyncTask<String, Void, Void> {
 		while (queue.peek() != null) {
 			String filename = queue.poll();
 
-			AndroidHttpClient client = AndroidHttpClient.newInstance("Android");
+			HttpClient client = new DefaultHttpClient();
 			HttpPost request = new HttpPost(params[0]);
 
 			try {
-				request.setHeader("Accept", "application/json");
-				request.setHeader("Content-Type", "application/json");
 				Log.e(TAG, "URL: " + params[0]);
+				
+				FileInputStream fis = context.openFileInput(filename);
+				Bitmap photo = BitmapFactory.decodeStream(fis);
+				fis.close();
 
-				Bitmap photo = BitmapFactory.decodeFile(filename);
 				if (photo != null) {
 					ByteArrayOutputStream stream = new ByteArrayOutputStream();
 					photo.compress(Bitmap.CompressFormat.PNG, 100, stream);
@@ -59,8 +64,8 @@ public class CameraPoster extends AsyncTask<String, Void, Void> {
 
 					if (response.getStatusLine().getStatusCode() != STATUS_OK) {
 						Log.e(TAG, "Server returned failure");
+						Log.e(TAG, response.getStatusLine().getReasonPhrase());
 					}
-					client.close();
 				} else {
 					Log.v(TAG, "Could not decode file [" + filename + "]");
 				}
