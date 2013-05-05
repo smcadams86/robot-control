@@ -12,6 +12,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.hardware.Camera;
+import android.hardware.Camera.PreviewCallback;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.location.Location;
@@ -283,6 +284,31 @@ public class MainActivity extends Activity {
     return "http://" + dataSource + "/control";
   }
   
+  private void takePicture(){
+    if(!previewing){
+      Toast.makeText(getApplicationContext(), "Start the preview first", Toast.LENGTH_SHORT).show();
+      return;
+    }
+    camera.takePicture(null, null, new Camera.PictureCallback() {
+      @Override
+      public void onPictureTaken(byte[] data, Camera camera) {
+        Toast.makeText(getApplicationContext(),
+            "Took Picture, size " + data.length + " bytes",
+            Toast.LENGTH_LONG).show();
+        String FILENAME = "image_file";
+        try {
+          FileOutputStream fos = openFileOutput(FILENAME,
+              Context.MODE_PRIVATE);
+          fos.write(data);
+          fos.close();
+        } catch (Exception e) {
+          Toast.makeText(getApplicationContext(),
+              e.getMessage(), Toast.LENGTH_LONG).show();
+        }
+      }
+    });
+  }
+  
   private class CowboyLocationListener implements LocationListener {
     public void onLocationChanged(Location location) {
       LocationPoster poster = new LocationPoster();
@@ -341,6 +367,7 @@ public class MainActivity extends Activity {
         try {
           camera.setDisplayOrientation(90);
           camera.setPreviewDisplay(surfaceHolder);
+          camera.setPreviewCallback(new CowboyPreviewCallback());
         } catch (IOException e1) {
           e1.printStackTrace();
         }
@@ -349,34 +376,27 @@ public class MainActivity extends Activity {
       }
     }
   };
-
+  
   private class OnSnapClickListener implements OnClickListener{
     @Override
     public void onClick(View v){
-      if(!previewing){
-        Toast.makeText(getApplicationContext(), "Start the preview first", Toast.LENGTH_SHORT).show();
-        return;
-      }
-      camera.takePicture(null, null, new Camera.PictureCallback() {
-        @Override
-        public void onPictureTaken(byte[] data, Camera camera) {
-          Toast.makeText(getApplicationContext(),
-              "Took Picture, size " + data.length + " bytes",
-              Toast.LENGTH_LONG).show();
-          String FILENAME = "image_file";
-          try {
-            FileOutputStream fos = openFileOutput(FILENAME,
-                Context.MODE_PRIVATE);
-            fos.write(data);
-            fos.close();
-          } catch (Exception e) {
-            Toast.makeText(getApplicationContext(),
-                e.getMessage(), Toast.LENGTH_LONG).show();
-          }
-        }
-      });
+      takePicture();
     }
   };
+  
+  private class CowboyPreviewCallback implements PreviewCallback{
+    long frames = 0;
+
+    @Override
+    public void onPreviewFrame(byte[] arg0, Camera arg1) {
+      Log.d(TAG, "Got preview frame");
+      frames++;
+      if(frames %100 == 0){
+        Log.w(TAG, "got 100 preview frames");
+      }
+    }
+    
+  }
   
   private class CowboySerialDeviceListener implements SerialInputOutputManager.Listener {
     @Override
