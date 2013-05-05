@@ -213,14 +213,11 @@ public class MainActivity extends Activity {
     }
   }
   
-  private void stopIoManager() {
-    if (mSerialIoManager != null) {
-      Log.i(TAG, "Stopping io manager ..");
-      mSerialIoManager.stop();
-      mSerialIoManager = null;
-    }
+  private void onDeviceStateChange() {
+    stopIoManager();
+    startIoManager();
   }
-
+  
   private void startIoManager() {
     if (mSerialDevice != null) {
       Log.i(TAG, "Starting io manager ..");
@@ -229,10 +226,13 @@ public class MainActivity extends Activity {
       mExecutor.submit(mSerialIoManager);
     }
   }
-
-  private void onDeviceStateChange() {
-    stopIoManager();
-    startIoManager();
+  
+  private void stopIoManager() {
+    if (mSerialIoManager != null) {
+      Log.i(TAG, "Stopping io manager ..");
+      mSerialIoManager.stop();
+      mSerialIoManager = null;
+    }
   }
 
   private void updateReceivedData(byte[] data) {
