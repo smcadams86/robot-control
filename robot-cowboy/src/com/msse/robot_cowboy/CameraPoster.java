@@ -32,7 +32,6 @@ public class CameraPoster extends AsyncTask<String, Void, Void> {
 			return null;
 		}
 		
-		
 		AndroidHttpClient client = AndroidHttpClient.newInstance("Android");
 		HttpPost request = new HttpPost(params[0]);
 		try {
@@ -43,11 +42,12 @@ public class CameraPoster extends AsyncTask<String, Void, Void> {
 			if (response.getStatusLine().getStatusCode() != STATUS_OK) {
 				Log.e(TAG, "Server returned failure");
 			}
-			client.close();
 		} catch (UnsupportedEncodingException e) {
 			Log.e(TAG, "Unsupported Encoding Exception");
 		} catch (IOException e) {
 			Log.e(TAG, "IOException");
+		} finally {
+		  client.close();
 		}
 		return null;
 	}
