@@ -1,23 +1,20 @@
 package com.msse.robot_cowboy;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
 
 import android.content.Context;
-import android.hardware.Camera;
+//import android.hardware.Camera;
 import android.net.http.AndroidHttpClient;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.widget.Toast;
 
 public class CameraPoster extends AsyncTask<String, Void, Void> {
 	private final String TAG = CameraPoster.class.getSimpleName();
-	private Camera camera;
+//	private Camera camera;
 	private static final int STATUS_OK = 200;
 	
 	

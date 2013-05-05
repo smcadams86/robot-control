@@ -61,6 +61,7 @@ public class MainActivity extends Activity {
   private ScrollView mScrollView;
   private SurfaceView surfaceView;
   private SurfaceHolder surfaceHolder;
+  private Button previewBtn;
   
   private Camera camera;
 
@@ -68,8 +69,7 @@ public class MainActivity extends Activity {
   private Timer cameraPostingTimer = null;
   
   LocationListener onLocationChange = new CowboyLocationListener();
-  private OnClickListener snapListener = new OnSnapClickListener();
-  private OnClickListener cameraClickListener = new OnPreviewClickListener();
+  private OnClickListener previewClickListener = new OnPreviewClickListener();
   private OnClickListener controlClickListener = new OnControlClickListener();
   private final SerialInputOutputManager.Listener mListener = new CowboySerialDeviceListener();
   
@@ -91,16 +91,14 @@ public class MainActivity extends Activity {
     ImageButton stopBtn = (ImageButton) findViewById(R.id.stop_btn);
     ImageButton rightBtn = (ImageButton) findViewById(R.id.right_btn);
     ImageButton backwardBtn = (ImageButton) findViewById(R.id.backward_btn);
-    Button pictureBtn = (Button) findViewById(R.id.photo_btn);
-    Button snapBtn = (Button) findViewById(R.id.snap);
+    previewBtn = (Button) findViewById(R.id.photo_btn);
 
     forwardBtn.setOnClickListener(controlClickListener);
     leftBtn.setOnClickListener(controlClickListener);
     stopBtn.setOnClickListener(controlClickListener);
     rightBtn.setOnClickListener(controlClickListener);
     backwardBtn.setOnClickListener(controlClickListener);
-    pictureBtn.setOnClickListener(cameraClickListener);
-    snapBtn.setOnClickListener(snapListener);
+    previewBtn.setOnClickListener(previewClickListener);
 
     locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
   }
@@ -363,25 +361,25 @@ public class MainActivity extends Activity {
   private class OnPreviewClickListener implements OnClickListener {
     @Override
     public void onClick(View v) {
-      camera = Camera.open();
-      if (camera != null) {
-        try {
-          camera.setDisplayOrientation(90);
-          camera.setPreviewDisplay(surfaceHolder);
-          camera.setPreviewCallback(new CowboyPreviewCallback());
-        } catch (IOException e1) {
-          e1.printStackTrace();
+      if(!previewing){
+        camera = Camera.open();
+        if (camera != null) {
+          try {
+            camera.setDisplayOrientation(90);
+            camera.setPreviewDisplay(surfaceHolder);
+            camera.setPreviewCallback(new CowboyPreviewCallback());
+          } catch (IOException e1) {
+            e1.printStackTrace();
+          }
+          camera.startPreview();
+          previewing = true;
+          previewBtn.setText("Stop Preview");          
         }
-        camera.startPreview();
-        previewing = true;
+      } else {
+        camera.stopPreview();
+        previewing = false;
+        previewBtn.setText("Start Preview");
       }
-    }
-  };
-  
-  private class OnSnapClickListener implements OnClickListener{
-    @Override
-    public void onClick(View v){
-      takePicture();
     }
   };
   
