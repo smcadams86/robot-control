@@ -81,7 +81,7 @@ public class Home extends Activity {
 		resetURL();
 		updateCameras();
 		
-		long period = Long.valueOf(PreferenceManager.getDefaultSharedPreferences(this).getString("pref_update_period", "1000"));
+		long camPeriod = Long.valueOf(PreferenceManager.getDefaultSharedPreferences(this).getString("pref_cam_update_period", "15000"));
 		autoUpdate = new Timer();
 		autoUpdate.scheduleAtFixedRate(new TimerTask() {
 			@Override
@@ -93,7 +93,7 @@ public class Home extends Activity {
 					}
 				});
 			}
-		}, 0, period);
+		}, 0, camPeriod);
 	}
 	
 	public void onPause() {

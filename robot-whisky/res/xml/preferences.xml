@@ -12,13 +12,22 @@
         />
     
     <ListPreference
-        android:defaultValue="@string/pref_update_period_default"
-        android:entries="@array/pref_update_period_titles"
-        android:entryValues="@array/pref_update_period_values"
-        android:key="pref_update_period"
+        android:defaultValue="@string/pref_pos_update_period_default"
+        android:entries="@array/pref_pos_update_period_titles"
+        android:entryValues="@array/pref_pos_update_period_values"
+        android:key="pref_pos_update_period"
         android:negativeButtonText="@null"
         android:positiveButtonText="@null"
-        android:title="@string/pref_title_update_period" />
+        android:title="@string/pref_title_pos_update_period" />
+
+    <ListPreference
+        android:defaultValue="@string/pref_cam_update_period_default"
+        android:entries="@array/pref_cam_update_period_titles"
+        android:entryValues="@array/pref_cam_update_period_values"
+        android:key="pref_cam_update_period"
+        android:negativeButtonText="@null"
+        android:positiveButtonText="@null"
+        android:title="@string/pref_title_cam_update_period" />
 
 </PreferenceScreen>
 

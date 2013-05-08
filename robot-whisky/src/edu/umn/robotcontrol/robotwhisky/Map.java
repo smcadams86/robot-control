@@ -38,7 +38,7 @@ public class Map extends Activity implements LocationSource {
 	
 	private void startUpdater() {
 		if (posUpdateTimer == null) {
-			long period = Long.valueOf(PreferenceManager.getDefaultSharedPreferences(this).getString("pref_update_period", "1000"));
+			long period = Long.valueOf(PreferenceManager.getDefaultSharedPreferences(this).getString("pref_pos_update_period", "1000"));
 
 			updater = new UpdatePosition();
 			updater.setPositionListener(positionListener);
