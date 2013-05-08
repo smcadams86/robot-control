@@ -348,8 +348,14 @@ public class MainActivity extends Activity {
     @Override
     public void onClick(View v) {
       if(!previewing){
-        try {
+        try{
           camera = Camera.open(getPreferredCamera());
+        } catch (Exception e){
+          e.printStackTrace();
+          Toast.makeText(getApplicationContext(), "Unable to acquire camera", Toast.LENGTH_SHORT).show();
+          return;
+        }
+        try {
           camera.setDisplayOrientation(90);
           camera.setPreviewDisplay(surfaceHolder);
           Size previewSize = camera.getParameters().getPreviewSize();
