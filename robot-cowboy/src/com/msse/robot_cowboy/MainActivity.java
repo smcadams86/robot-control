@@ -247,7 +247,7 @@ public class MainActivity extends Activity {
             "pref_update_period", "1000"));
     long cameraFrequency = Long.valueOf(PreferenceManager
         .getDefaultSharedPreferences(this).getString(
-            "pref_camera_period", "15000"));
+            "pref_camera_period", "5000"));
 
     if (commandPollingTimer == null) {
       commandPollingTimer = new Timer();

@@ -7,10 +7,10 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class PhotoQueue {
 	
 	private static volatile PhotoQueue instance = null;
-	private Queue<String> queue;
+	private Queue<byte[]> queue;
 	
 	private PhotoQueue() {
-		queue = new LinkedBlockingQueue<String>();
+		queue = new LinkedBlockingQueue<byte[]>();
 	}
 
 	public static PhotoQueue getInstance() {
@@ -24,15 +24,15 @@ public class PhotoQueue {
 		return instance;
 	}
 	
-	public boolean add(String filename) {
-		return queue.add(filename);
+	public boolean add(byte[] data) {
+		return queue.add(data);
 	}
 	
-	public String peek() {
+	public byte[] peek() {
 		return queue.peek();
 	}
 	
-	public String poll() {
+	public byte[] poll() {
 		return queue.poll();
 	}
 }

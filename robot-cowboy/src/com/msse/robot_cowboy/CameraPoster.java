@@ -1,7 +1,5 @@
 package com.msse.robot_cowboy;
 
-import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -14,11 +12,9 @@ import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.net.http.AndroidHttpClient;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.widget.Toast;
 
 public class CameraPoster extends AsyncTask<String, Void, Void> {
 	private final String TAG = CameraPoster.class.getSimpleName();
@@ -38,25 +34,17 @@ public class CameraPoster extends AsyncTask<String, Void, Void> {
 
 		PhotoQueue queue = PhotoQueue.getInstance();
 		while (queue.peek() != null) {
-			String filename = queue.poll();
+			byte[] photo = queue.poll();
 
 			HttpClient client = new DefaultHttpClient();
 			HttpPost request = new HttpPost(params[0]);
 
 			try {
 				Log.e(TAG, "URL: " + params[0]);
-				
-				FileInputStream fis = context.openFileInput(filename);
-				Bitmap photo = BitmapFactory.decodeStream(fis);
-				fis.close();
 
 				if (photo != null) {
-					ByteArrayOutputStream stream = new ByteArrayOutputStream();
-					photo.compress(Bitmap.CompressFormat.PNG, 100, stream);
-					byte[] photoByteArray = stream.toByteArray();
-
 					// Write the photo to the REST endpoint
-					request.setEntity(new ByteArrayEntity(photoByteArray));
+					request.setEntity(new ByteArrayEntity(photo));
 					HttpResponse response = client.execute(request);
 					HttpEntity entity = response.getEntity();
 					InputStream inStream = entity.getContent();
@@ -66,8 +54,9 @@ public class CameraPoster extends AsyncTask<String, Void, Void> {
 						Log.e(TAG, "Server returned failure");
 						Log.e(TAG, response.getStatusLine().getReasonPhrase());
 					}
-				} else {
-					Log.v(TAG, "Could not decode file [" + filename + "]");
+					else {
+						Toast.makeText(context, "Photo Uploaded!", Toast.LENGTH_SHORT).show();
+					}
 				}
 			} catch (UnsupportedEncodingException e) {
 				Log.e(TAG, "Unsupported Encoding Exception");
