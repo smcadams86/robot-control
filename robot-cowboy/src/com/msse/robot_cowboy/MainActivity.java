@@ -102,7 +102,7 @@ public class MainActivity extends Activity {
 
     locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
   }
-
+  
   @Override
   protected void onResume() {
     super.onResume();
@@ -144,7 +144,6 @@ public class MainActivity extends Activity {
     super.onPause();
     if(camera != null){
       camera.setPreviewCallback(null);
-      camera.release();
     }
     stopIoManager();
     if (mSerialDriver != null) {
@@ -158,6 +157,14 @@ public class MainActivity extends Activity {
     stopAsyncTasks();
   }
 
+  @Override
+  protected void onStop() {
+    super.onStop();
+    if(camera != null){
+      camera.release();
+    }
+  }
+  
   @Override
   public boolean onCreateOptionsMenu(Menu menu) {
     // Inflate the menu; this adds items to the action bar if it is present.
