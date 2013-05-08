@@ -55,7 +55,7 @@ public class CameraPoster extends AsyncTask<String, Void, Void> {
 						Log.e(TAG, response.getStatusLine().getReasonPhrase());
 					}
 					else {
-						Toast.makeText(context, "Photo Uploaded!", Toast.LENGTH_SHORT).show();
+						Log.v(TAG, "Photo Uploaded");
 					}
 				}
 			} catch (UnsupportedEncodingException e) {
