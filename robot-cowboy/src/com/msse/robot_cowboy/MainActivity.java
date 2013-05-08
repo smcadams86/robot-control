@@ -391,7 +391,9 @@ public class MainActivity extends Activity {
         }
       } else {
         synchronized(camera){
-          camera.stopPreview();
+          if(cameraOpen){
+            camera.stopPreview();
+          }
         }
         previewing = false;
         previewBtn.setText("Start Capturing");
