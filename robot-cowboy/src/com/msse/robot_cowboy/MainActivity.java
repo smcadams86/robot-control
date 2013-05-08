@@ -27,6 +27,7 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ScrollView;
@@ -105,6 +106,7 @@ public class MainActivity extends Activity {
     locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
     cameraOpen = false;
+    getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
   }
 
   @Override
@@ -213,6 +215,8 @@ public class MainActivity extends Activity {
     }
 
     Log.v(TAG, "Sending serial command [" + serialCommand + "]");
+    mDumpTextView.append("\nSending serial command [" + serialCommand + "]");
+    mScrollView.smoothScrollTo(0, mDumpTextView.getBottom());
 
     try {
       if (mSerialDriver != null) {
@@ -257,16 +261,19 @@ public class MainActivity extends Activity {
   }
 
   private void startAsyncTasks() {
-    long period = Long.valueOf(PreferenceManager
+    long cmd_period = Long.valueOf(PreferenceManager
         .getDefaultSharedPreferences(this).getString(
-            "pref_update_period", "1000"));
+            "pref_cmd_update_period", "1000"));
     long cameraFrequency = Long.valueOf(PreferenceManager
         .getDefaultSharedPreferences(this).getString(
             "pref_camera_period", "5000"));
+    long gps_period = Long.valueOf(PreferenceManager
+            .getDefaultSharedPreferences(this).getString(
+                "pref_gps_update_period", "1000"));
 
-    if (commandPollingTimer == null) {
+    if (commandPollingTimer == null && cmd_period > 0) {
       commandPollingTimer = new Timer();
-      commandPollingTimer.scheduleAtFixedRate(new PollCommandsTimerTask(), 0, period);
+      commandPollingTimer.scheduleAtFixedRate(new PollCommandsTimerTask(), 0, cmd_period);
     }
 
     if (cameraPostingTimer == null) {
@@ -275,7 +282,7 @@ public class MainActivity extends Activity {
     }
 
     locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
-        period, 0, onLocationChange);
+        gps_period, 0, onLocationChange);
   }
 
   private void stopAsyncTasks() {
