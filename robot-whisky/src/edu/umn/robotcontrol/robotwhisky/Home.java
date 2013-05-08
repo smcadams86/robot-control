@@ -34,18 +34,20 @@ public class Home extends Activity {
 		setContentView(R.layout.activity_home);
 		
 		
-		cameras = new Camera[2];
+		cameras = new Camera[1];
 		cameras[0] = new Camera(
 				(ImageView)findViewById(R.id.img_front),
 				(ProgressBar)findViewById(R.id.front_load));
+		/*
 		cameras[1] = new Camera(
 				(ImageView)findViewById(R.id.img_back),
 				(ProgressBar)findViewById(R.id.back_load));
+		*/
 	}
 	
 	private void resetURL() {
 		cameras[0].setURL(Utility.buildURL(this) + "/photo" + "?width=%width%&height=%height%");
-		cameras[1].setURL(Utility.buildURL(this) + "/photo" + "?width=%width%&height=%height%");
+		// cameras[1].setURL(Utility.buildURL(this) + "/photo" + "?width=%width%&height=%height%");
 	}
 	
 	private void updateCameras() {
