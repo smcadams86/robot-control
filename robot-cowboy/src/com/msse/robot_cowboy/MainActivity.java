@@ -345,7 +345,7 @@ public class MainActivity extends Activity {
     @Override
     public void onClick(View v) {
       if(!previewing){
-        camera = Camera.open();
+        camera = Camera.open(getPreferredCamera());
         if (camera != null) {
           try {
             camera.setDisplayOrientation(90);
@@ -364,6 +364,25 @@ public class MainActivity extends Activity {
         previewBtn.setText("Start Capturing");
       }
     }
+
+	private int getPreferredCamera() {
+		int id;
+		int anyCameraId = -1;
+		
+		Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
+		for (id=0; id<Camera.getNumberOfCameras(); id++) {
+			Camera.getCameraInfo(id,  cameraInfo);
+			
+			if (anyCameraId == -1) {
+				anyCameraId = id;
+			}
+			
+			if (cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+				return id;
+			}
+		}
+		return anyCameraId;
+	}
   };
   
   private class CowboyPreviewCallback implements PreviewCallback{

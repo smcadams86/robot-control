@@ -23,8 +23,9 @@
         android:layout_height="0dp"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
-        android:layout_alignRight="@id/vertical_strut"
+        android:layout_alignParentRight="true"
         android:layout_alignBottom="@id/horizontal_strut">
+   <!-- android:layout_alignRight="@id/vertical_strut" -->
         <ImageView
 	        android:id="@+id/img_front"	
 			android:layout_width="match_parent"
@@ -38,6 +39,7 @@
             style="@style/GeneralProgressIndicator" />
     </FrameLayout>
     
+    <!-- 
     <FrameLayout
         android:id="@+id/frame_back"
         android:layout_width="0dp"
@@ -58,6 +60,7 @@
 	        android:layout_gravity="right"
             style="@style/GeneralProgressIndicator" />
     </FrameLayout>
+    -->
 
     
     <RelativeLayout
