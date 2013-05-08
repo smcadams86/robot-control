@@ -1,10 +1,9 @@
 package com.msse.robot_cowboy;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.HashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -13,6 +12,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.hardware.Camera;
 import android.hardware.Camera.PreviewCallback;
+import android.hardware.Camera.Size;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.location.Location;
@@ -350,6 +350,8 @@ public class MainActivity extends Activity {
           try {
             camera.setDisplayOrientation(90);
             camera.setPreviewDisplay(surfaceHolder);
+            Size previewSize = camera.getParameters().getPreviewSize();
+            surfaceHolder.setFixedSize(previewSize.width, previewSize.height);
             camera.setPreviewCallback(new CowboyPreviewCallback());
           } catch (IOException e1) {
             e1.printStackTrace();
