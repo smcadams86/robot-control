@@ -72,6 +72,8 @@ public class MainActivity extends Activity {
   private OnClickListener previewClickListener = new OnPreviewClickListener();
   private OnClickListener controlClickListener = new OnControlClickListener();
   private final SerialInputOutputManager.Listener mListener = new CowboySerialDeviceListener();
+  private Object cameraLock = new Object();
+  private boolean cameraOpen;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -101,8 +103,10 @@ public class MainActivity extends Activity {
     previewBtn.setOnClickListener(previewClickListener);
 
     locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
+    cameraOpen = false;
   }
-  
+
   @Override
   protected void onResume() {
     super.onResume();
@@ -142,8 +146,12 @@ public class MainActivity extends Activity {
   @Override
   protected void onPause() {
     super.onPause();
-    if(camera != null){
-      camera.setPreviewCallback(null);
+    synchronized(cameraLock){
+      if(camera != null && cameraOpen){
+        camera.setPreviewCallback(null);
+        camera.release();
+        cameraOpen = false;
+      }
     }
     stopIoManager();
     if (mSerialDriver != null) {
@@ -157,14 +165,6 @@ public class MainActivity extends Activity {
     stopAsyncTasks();
   }
 
-  @Override
-  protected void onStop() {
-    super.onStop();
-    if(camera != null){
-      camera.release();
-    }
-  }
-  
   @Override
   public boolean onCreateOptionsMenu(Menu menu) {
     // Inflate the menu; this adds items to the action bar if it is present.
@@ -298,8 +298,12 @@ public class MainActivity extends Activity {
       Toast.makeText(getApplicationContext(), "Start the preview first", Toast.LENGTH_SHORT).show();
       return;
     }
-    camera.takePicture(null, null, new CameraHandler(getApplicationContext()));
-    camera.startPreview();
+    synchronized(cameraLock){
+      if(cameraOpen){
+        camera.takePicture(null, null, new CameraHandler(getApplicationContext()));
+        camera.startPreview();      
+      }
+    }
   }
 
   private class CowboyLocationListener implements LocationListener {
@@ -357,27 +361,37 @@ public class MainActivity extends Activity {
     public void onClick(View v) {
       if(!previewing){
         try{
-          camera = Camera.open(getPreferredCamera());
+          synchronized(cameraLock){
+            if(!cameraOpen){
+              camera = Camera.open(getPreferredCamera());
+              cameraOpen = true;
+            }
+          }
         } catch (Exception e){
           e.printStackTrace();
           Toast.makeText(getApplicationContext(), "Unable to acquire camera", Toast.LENGTH_SHORT).show();
           return;
         }
         try {
-          camera.setDisplayOrientation(90);
-          camera.setPreviewDisplay(surfaceHolder);
-          Size previewSize = camera.getParameters().getPreviewSize();
-          surfaceHolder.setFixedSize(previewSize.width, previewSize.height);
-          camera.setPreviewCallback(new CowboyPreviewCallback());
-          camera.startPreview();
+          synchronized(cameraLock){
+            if(cameraOpen){
+              camera.setDisplayOrientation(90);
+              camera.setPreviewDisplay(surfaceHolder);
+              Size previewSize = camera.getParameters().getPreviewSize();
+              surfaceHolder.setFixedSize(previewSize.width, previewSize.height);
+              camera.setPreviewCallback(new CowboyPreviewCallback());
+              camera.startPreview();
+            }
+          }
           previewing = true;
-          previewBtn.setText("Stop Capturing");          
+          previewBtn.setText("Stop Capturing");     
         } catch (IOException e) {
           e.printStackTrace();
         }
       } else {
-        camera.stopPreview();
-        camera.release();
+        synchronized(camera){
+          camera.stopPreview();
+        }
         previewing = false;
         previewBtn.setText("Start Capturing");
       }
