@@ -143,6 +143,7 @@ public class MainActivity extends Activity {
   protected void onPause() {
     super.onPause();
     if(camera != null){
+      camera.setPreviewCallback(null);
       camera.release();
     }
     stopIoManager();
