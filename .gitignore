@@ -20,3 +20,7 @@ local.properties
 
 # OS X Whatnot
 .DS_Store
+
+#intellij project
+.idea
+*.iml

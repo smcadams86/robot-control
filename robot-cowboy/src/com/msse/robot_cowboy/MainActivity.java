@@ -45,13 +45,13 @@ import edu.umn.robotcontrol.domain.RobotPosition;
 public class MainActivity extends Activity {
 
   private final String TAG = MainActivity.class.getSimpleName();
-  
+
   private LocationManager locationManager;
-  
+
   private UsbSerialDriver mSerialDriver;
   private UsbManager mUsbManager;
   private SerialInputOutputManager mSerialIoManager;
-  
+
   private final ExecutorService mExecutor = Executors
       .newSingleThreadExecutor();
   private boolean previewing = false;
@@ -62,17 +62,19 @@ public class MainActivity extends Activity {
   private SurfaceView surfaceView;
   private SurfaceHolder surfaceHolder;
   private Button previewBtn;
-  
+
   private Camera camera;
 
   private Timer commandPollingTimer = null;
   private Timer cameraPostingTimer = null;
-  
+
   LocationListener onLocationChange = new CowboyLocationListener();
   private OnClickListener previewClickListener = new OnPreviewClickListener();
   private OnClickListener controlClickListener = new OnControlClickListener();
   private final SerialInputOutputManager.Listener mListener = new CowboySerialDeviceListener();
-  
+  private Object cameraLock = new Object();
+  private boolean cameraOpen;
+
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -101,6 +103,8 @@ public class MainActivity extends Activity {
     previewBtn.setOnClickListener(previewClickListener);
 
     locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
+    cameraOpen = false;
   }
 
   @Override
@@ -138,12 +142,16 @@ public class MainActivity extends Activity {
     surfaceView = (SurfaceView)findViewById(R.id.surfaceView1);
     surfaceHolder = surfaceView.getHolder();
   }
-  
+
   @Override
   protected void onPause() {
     super.onPause();
-    if(camera != null){
-      camera.release();
+    synchronized(cameraLock){
+      if(camera != null && cameraOpen){
+        camera.setPreviewCallback(null);
+        camera.release();
+        cameraOpen = false;
+      }
     }
     stopIoManager();
     if (mSerialDriver != null) {
@@ -156,7 +164,7 @@ public class MainActivity extends Activity {
     }
     stopAsyncTasks();
   }
-  
+
   @Override
   public boolean onCreateOptionsMenu(Menu menu) {
     // Inflate the menu; this adds items to the action bar if it is present.
@@ -176,7 +184,7 @@ public class MainActivity extends Activity {
       return super.onOptionsItemSelected(item);
     }
   }
-  
+
   public void executeCommand(RobotCommand command) {
     String serialCommand = "S";
     if (command == null) {
@@ -214,12 +222,12 @@ public class MainActivity extends Activity {
       e.printStackTrace();
     }
   }
-  
+
   private void onDeviceStateChange() {
     stopIoManager();
     startIoManager();
   }
-  
+
   private void startIoManager() {
     if (mSerialDriver != null) {
       Log.i(TAG, "Starting io manager ..");
@@ -228,7 +236,7 @@ public class MainActivity extends Activity {
       mExecutor.submit(mSerialIoManager);
     }
   }
-  
+
   private void stopIoManager() {
     if (mSerialIoManager != null) {
       Log.i(TAG, "Stopping io manager ..");
@@ -265,7 +273,7 @@ public class MainActivity extends Activity {
     locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
         period, 0, onLocationChange);
   }
-  
+
   private void stopAsyncTasks() {
     if (commandPollingTimer != null) {
       Log.v(TAG, "Polling timer shutting down...");
@@ -284,16 +292,20 @@ public class MainActivity extends Activity {
     String dataSource = PreferenceManager.getDefaultSharedPreferences(this).getString("pref_data_source", "");
     return "http://" + dataSource + "/control";
   }
-  
+
   private void takePicture(){
     if(!previewing){
       Toast.makeText(getApplicationContext(), "Start the preview first", Toast.LENGTH_SHORT).show();
       return;
     }
-    camera.takePicture(null, null, new CameraHandler(getApplicationContext()));
-    camera.startPreview();
+    synchronized(cameraLock){
+      if(cameraOpen){
+        camera.takePicture(null, null, new CameraHandler(getApplicationContext()));
+        camera.startPreview();      
+      }
+    }
   }
-  
+
   private class CowboyLocationListener implements LocationListener {
     public void onLocationChanged(Location location) {
       LocationPoster poster = new LocationPoster();
@@ -314,7 +326,7 @@ public class MainActivity extends Activity {
       // required for interface, not used
     }
   };
-  
+
   private class OnControlClickListener implements OnClickListener{
 
     @Override
@@ -343,53 +355,68 @@ public class MainActivity extends Activity {
       executeCommand(command);
     }
   };
-  
+
   private class OnPreviewClickListener implements OnClickListener {
     @Override
     public void onClick(View v) {
       if(!previewing){
-        camera = Camera.open(getPreferredCamera());
-        if (camera != null) {
-          try {
-            camera.setDisplayOrientation(90);
-            camera.setPreviewDisplay(surfaceHolder);
-            Size previewSize = camera.getParameters().getPreviewSize();
-            surfaceHolder.setFixedSize(previewSize.width, previewSize.height);
-            camera.setPreviewCallback(new CowboyPreviewCallback());
-          } catch (IOException e1) {
-            e1.printStackTrace();
+        try{
+          synchronized(cameraLock){
+            if(!cameraOpen){
+              camera = Camera.open(getPreferredCamera());
+              cameraOpen = true;
+            }
           }
-          camera.startPreview();
+        } catch (Exception e){
+          e.printStackTrace();
+          Toast.makeText(getApplicationContext(), "Unable to acquire camera", Toast.LENGTH_SHORT).show();
+          return;
+        }
+        try {
+          synchronized(cameraLock){
+            if(cameraOpen){
+              camera.setDisplayOrientation(90);
+              camera.setPreviewDisplay(surfaceHolder);
+              Size previewSize = camera.getParameters().getPreviewSize();
+              surfaceHolder.setFixedSize(previewSize.width, previewSize.height);
+              camera.setPreviewCallback(new CowboyPreviewCallback());
+              camera.startPreview();
+            }
+          }
           previewing = true;
-          previewBtn.setText("Stop Capturing");          
+          previewBtn.setText("Stop Capturing");     
+        } catch (IOException e) {
+          e.printStackTrace();
         }
       } else {
-        camera.stopPreview();
+        synchronized(camera){
+          camera.stopPreview();
+        }
         previewing = false;
         previewBtn.setText("Start Capturing");
       }
     }
 
-	private int getPreferredCamera() {
-		int id;
-		int anyCameraId = -1;
-		
-		Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
-		for (id=0; id<Camera.getNumberOfCameras(); id++) {
-			Camera.getCameraInfo(id,  cameraInfo);
-			
-			if (anyCameraId == -1) {
-				anyCameraId = id;
-			}
-			
-			if (cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
-				return id;
-			}
-		}
-		return anyCameraId;
-	}
+    private int getPreferredCamera() {
+      int id;
+      int anyCameraId = -1;
+
+      Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
+      for (id=0; id<Camera.getNumberOfCameras(); id++) {
+        Camera.getCameraInfo(id,  cameraInfo);
+
+        if (anyCameraId == -1) {
+          anyCameraId = id;
+        }
+
+        if (cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+          return id;
+        }
+      }
+      return anyCameraId;
+    }
   };
-  
+
   private class CowboyPreviewCallback implements PreviewCallback{
     long frames = 0;
 
@@ -401,9 +428,9 @@ public class MainActivity extends Activity {
         takePicture();
       }
     }
-    
+
   }
-  
+
   private class CowboySerialDeviceListener implements SerialInputOutputManager.Listener {
     @Override
     public void onRunError(Exception e) {
@@ -420,7 +447,7 @@ public class MainActivity extends Activity {
       });
     }
   };
-  
+
   private class PostPhotoTimerTask extends TimerTask {
     @Override
     public void run() {
@@ -433,7 +460,7 @@ public class MainActivity extends Activity {
       });
     }
   }
-  
+
   private class PollCommandsTimerTask extends TimerTask {
     @Override
     public void run() {
