@@ -9,6 +9,7 @@
     <string name="pref_title_pos_update_period">Position Update Period</string>
     <string name="pref_pos_update_period_default">1000</string>
     <string-array name="pref_pos_update_period_titles">
+        <item>0.5 Seconds</item>
         <item>1 Second</item>
         <item>5 Seconds</item>
         <item>15 Seconds</item>
@@ -17,6 +18,7 @@
         <item>1 Minute</item>
     </string-array>
     <string-array name="pref_pos_update_period_values">
+        <item>500</item>
         <item>1000</item>
         <item>5000</item>
         <item>15000</item>
@@ -28,6 +30,8 @@
     <string name="pref_title_cam_update_period">Camera Update Period</string>
     <string name="pref_cam_update_period_default">5000</string>
     <string-array name="pref_cam_update_period_titles">
+        <item>0.5 Seconds</item>
+        <item>1 Second</item>
         <item>5 Seconds</item>
         <item>15 Seconds</item>
         <item>30 Seconds</item>
@@ -35,6 +39,8 @@
         <item>1 Minute</item>
     </string-array>
     <string-array name="pref_cam_update_period_values">
+        <item>500</item>
+        <item>1000</item>
         <item>5000</item>
         <item>15000</item>
         <item>30000</item>
