@@ -2,5 +2,8 @@
 <resources>
     <!-- 0x0403 / 0x6001: FTDI FT232R UART -->
     <usb-device vendor-id="8187" product-id="135" />
+
+    <!-- 0x2341 / Arduino -->
+    <usb-device vendor-id="9025" />
     
 </resources>

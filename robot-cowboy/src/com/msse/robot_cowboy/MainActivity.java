@@ -123,6 +123,7 @@ public class MainActivity extends Activity {
     } else {
       try {
         mSerialDriver.open();
+        mSerialDriver.setBaudRate(115200);
       } catch (IOException e) {
         Log.e(TAG, "Error setting up device: " + e.getMessage(), e);
         mTitleTextView.append("Error opening device: "
@@ -186,25 +187,25 @@ public class MainActivity extends Activity {
   }
 
   public void executeCommand(RobotCommand command) {
-    String serialCommand = "S";
+    byte serialCommand = 0x53; //S
     if (command == null) {
       return;
     }
     switch(command.getComponent()) {
     case RobotCommand.MOVE_FORWARD:
-      serialCommand = "F";
+      serialCommand = 0x46; //F
       break;
     case RobotCommand.MOVE_LEFT:
-      serialCommand = "L";
+      serialCommand = 0x4C; //L
       break;
     case RobotCommand.MOVE_REVERSE:
-      serialCommand = "B";
+      serialCommand = 0x42; // B
       break;
     case RobotCommand.MOVE_RIGHT:
-      serialCommand = "R";
+      serialCommand = 0x52; // R
       break;
     case RobotCommand.MOVE_STOP:
-      serialCommand = "S";
+      serialCommand = 0x53; // S
       break;
     }
 
@@ -212,7 +213,7 @@ public class MainActivity extends Activity {
 
     try {
       if (mSerialDriver != null) {
-        mSerialDriver.write(serialCommand.getBytes(), 1000);
+        mSerialDriver.write(new byte[] {serialCommand}, 1);
       }
       else {
         mDumpTextView.append("\nNo connected Device..");
