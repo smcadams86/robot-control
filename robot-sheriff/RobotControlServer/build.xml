@@ -79,7 +79,7 @@
     <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects"/>
 
 <target name="war" depends="build">
-  <war destfile="dist/robot-control.war" webxml="WebContent/WEB-INF/web.xml">
+  <war destfile="dist/robot-sheriff.war" webxml="WebContent/WEB-INF/web.xml">
 	 <fileset dir="WebContent"/>
 	 <lib dir="WebContent/WEB-INF/lib"/>
 	 <classes dir="build/classes"/>
