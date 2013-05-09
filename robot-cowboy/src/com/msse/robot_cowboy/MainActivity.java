@@ -386,7 +386,6 @@ public class MainActivity extends Activity {
         try {
           synchronized(cameraLock){
             if(cameraOpen){
-              camera.setDisplayOrientation(90);
               camera.setPreviewDisplay(surfaceHolder);
               Size previewSize = camera.getParameters().getPreviewSize();
               surfaceHolder.setFixedSize(previewSize.width, previewSize.height);

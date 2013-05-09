@@ -25,7 +25,7 @@
         <activity
             android:name="com.msse.robot_cowboy.MainActivity"
             android:label="@string/app_name"
-            android:screenOrientation="portrait"
+            android:screenOrientation="landscape"
             android:configChanges="keyboardHidden|orientation">
             
             <intent-filter>

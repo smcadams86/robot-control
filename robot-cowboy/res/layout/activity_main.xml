@@ -2,68 +2,20 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
+    android:orientation="horizontal"
     tools:context=".MainActivity" >
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
-
-        <ImageButton
-            android:id="@+id/forward_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:src="@drawable/forward" />
-
-        <ImageButton
-            android:id="@+id/stop_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/forward_btn"
-            android:layout_centerHorizontal="true"
-            android:src="@drawable/stop" />
-
-        <ImageButton
-            android:id="@+id/left_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/forward_btn"
-            android:layout_toLeftOf="@+id/stop_btn"
-            android:src="@drawable/left" />
-
-        <ImageButton
-            android:id="@+id/right_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/forward_btn"
-            android:layout_toRightOf="@+id/stop_btn"
-            android:src="@drawable/right" />
-
-        <ImageButton
-            android:id="@+id/backward_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/stop_btn"
-            android:layout_centerHorizontal="true"
-            android:src="@drawable/backward" />
-    </RelativeLayout>
-
-	      <RelativeLayout
-	          android:layout_width="match_parent"
-	          android:layout_height="wrap_content"
-	          android:gravity="fill_horizontal" >
-
-	          <Button
-	              android:id="@+id/photo_btn"
-	              android:layout_width="wrap_content"
-	              android:layout_height="wrap_content"
-	              android:layout_alignParentLeft="true"
-	              android:layout_alignParentTop="true"
-	              android:gravity="left"
-	              android:text="Start Capturing" />
-
-	      </RelativeLayout>
+    
+    <LinearLayout 
+        android:layout_width="0dp"
+	    android:layout_height="match_parent"
+	    android:orientation="vertical"
+	    android:layout_weight="40">
+	    
+        <Button
+        android:id="@+id/photo_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Start Capturing" />
 
     <TextView
         android:id="@+id/logTitle"
@@ -73,8 +25,8 @@
 
     <ScrollView
         android:id="@+id/logScroller"
-        android:layout_width="fill_parent"
-        android:layout_height="58dp" >
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent" >
 
         <TextView
             android:id="@+id/logText"
@@ -82,10 +34,60 @@
             android:layout_height="fill_parent"
             android:typeface="monospace" />
     </ScrollView>
-
-    <SurfaceView
+	    
+    </LinearLayout>
+    
+    <LinearLayout 
+        android:layout_width="0dp"
+	    android:layout_height="match_parent"
+	    android:orientation="vertical"
+	    android:layout_weight="50">
+    
+          <SurfaceView
         android:id="@+id/surfaceView1"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"/>
+	    
+    </LinearLayout>
+    
+    <LinearLayout 
+        android:layout_width="0dp"
+	    android:layout_height="match_parent"
+	    android:orientation="vertical"
+	    android:layout_weight="10">
+          
+        <ImageButton
+            android:id="@+id/forward_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/forward" />
+
+
+        <ImageButton
+            android:id="@+id/left_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/left" />
+        
+        <ImageButton
+            android:id="@+id/stop_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/stop" />
+        
+        <ImageButton
+            android:id="@+id/right_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/right" />
+
+        <ImageButton
+            android:id="@+id/backward_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/backward" />
+	    
+    </LinearLayout>
+
 
 </LinearLayout>

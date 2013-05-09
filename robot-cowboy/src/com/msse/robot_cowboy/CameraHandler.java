@@ -20,24 +20,6 @@ public class CameraHandler implements PictureCallback {
 
 	@Override
 	public void onPictureTaken(byte[] data, Camera camera) {
-		Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-
-		int width = bitmap.getWidth();
-		int height = bitmap.getHeight();
-
-		// create a matrix for the manipulation
-		Matrix matrix = new Matrix();
-		// rotate the Bitmap 90 degrees (counterclockwise)
-		matrix.postRotate(-90);
-
-		// recreate the new Bitmap, swap width and height and apply transform
-		Bitmap rotatedBitmap = Bitmap.createBitmap(bitmap, 0, 0,
-		                  width, height, matrix, true);
-		
-		ByteArrayOutputStream stream = new ByteArrayOutputStream();
-		rotatedBitmap.compress(Bitmap.CompressFormat.PNG, 50, stream);
-		byte[] photoByteArray = stream.toByteArray();
-		
-		PhotoQueue.getInstance().add(photoByteArray);
+		PhotoQueue.getInstance().add(data);
 	}
 }
