@@ -1,7 +1,7 @@
 DEVICE = atmega1284p
 MCU = atmega1284p
 AVRDUDE_DEVICE = m1284p
-PORT ?= usb
+PORT ?= /dev/ttyACM0
 DEVICE ?= atmega168
 MCU ?= atmega168
 AVRDUDE_DEVICE ?= m168
@@ -13,23 +13,21 @@ LDFLAGS=-Wl,-gc-sections -lpololu_$(DEVICE) -Wl,-relax
 
 PORT ?= /dev/ttyACM0
 AVRDUDE=avrdude
-
-TARGET=main
-OBJECT_FILES=main.o menu.o
+TARGET=bull
+OBJECT_FILES=bull.o
 
 all: $(TARGET).hex
 
 clean:
 	rm -f *.o *.hex *.obj *.hex
 
-%.hex: $(TARGET).obj
+%.hex: %.obj
 	$(OBJ2HEX) -R .eeprom -O ihex $< $@
 
-lab1.o: lab1.c
+bull.o: bull.c
 
 %.obj: $(OBJECT_FILES)
 	$(CC) $(CFLAGS) $(OBJECT_FILES) $(LDFLAGS) -o $@
 
 program: $(TARGET).hex
 	$(AVRDUDE) -p $(AVRDUDE_DEVICE) -c avrisp2 -P $(PORT) -U flash:w:$(TARGET).hex
-
