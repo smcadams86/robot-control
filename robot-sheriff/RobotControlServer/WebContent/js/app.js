@@ -13,6 +13,7 @@ App = Ember.Application.create({
 App.ApplicationController = Ember.Controller.extend({
 	direction: 'Stopped',
 	photoURL: "rest/control/photo",
+	pollCount: 0,
 	swipeLeft: function() {
 		this.sendCommand(2);
 	},
@@ -41,12 +42,19 @@ App.ApplicationController = Ember.Controller.extend({
   		});
 	},
 	poll: function() {
-		var controller = this;
-		console.log('updating image');
-		this.set('photoURL', 'rest/control/photo?t=' + Date.now().toString());
+		var controller = this,
+			pollCount = this.get('pollCount');
+
+		//Throttle image updating
+		if(pollCount % 5 === 0) {
+			this.set('photoURL', 'rest/control/photo?t=' + Date.now().toString());
+		}
+
 		$.get('rest/control/command', function(data) {
 			controller.setDirection(data.component);
 		});
+
+		this.set('pollCount', pollCount + 1);
 	},
 	setDirection: function(component) {
 		var direction = "";
